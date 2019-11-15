@@ -1,0 +1,7 @@
+<resources>
+    <string name="app_name">ImageSlider</string>
+    <string name="slide1">Slide 1</string>
+    <string name="slide2">Slide 2</string>
+    <string name="slide3">Slide 3</string>
+    <string name="slide4">Slide 4</string>
+</resources>
