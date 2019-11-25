@@ -72,21 +72,21 @@ public class MainActivity extends AppCompatActivity {
         //viewPager.setRotation(90);
 
         //------------------------FullScreen--------------------------------------
-        mVisible = true;
+        //mVisible = true;
         //mControlsView = findViewById(R.id.viewPager_id);
-        mContentView = findViewById(R.id.viewPager_id);
+/*        mContentView = findViewById(R.id.viewPager_id);
 
         mContentView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
                 toggle();
             }
-        });
+        });*/
 
     }
 
     //------------------------------FullScreen_Methods-------------------------------
-    private void toggle() {
+   /* private void toggle() {
         if (mVisible) {
             hide();
         } else {
@@ -120,12 +120,12 @@ public class MainActivity extends AppCompatActivity {
         mHideHandler.postDelayed(mShowPart2Runnable, UI_ANIMATION_DELAY);
     }
 
-    /**
+    *//**
      * Schedules a call to hide() in delay milliseconds, canceling any
      * previously scheduled calls.
-     */
+     *//*
     private void delayedHide(int delayMillis) {
         mHideHandler.removeCallbacks(mHideRunnable);
         mHideHandler.postDelayed(mHideRunnable, delayMillis);
-    }
+    }*/
 }

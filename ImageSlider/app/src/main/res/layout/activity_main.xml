@@ -17,6 +17,12 @@
         android:layout_height="fill_parent"
         android:id="@+id/viewPager_id"
         android:layout_alignParentTop="true">
+
+        <ImageView
+            android:id="@+id/imageView_id"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            app:srcCompat="@mipmap/ic_launcher" />
     </androidx.viewpager.widget.ViewPager>
 
 </RelativeLayout>
