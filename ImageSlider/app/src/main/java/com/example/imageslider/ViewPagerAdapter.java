@@ -19,6 +19,7 @@ import androidx.viewpager.widget.PagerAdapter;
 import androidx.viewpager.widget.ViewPager;
 
 public class ViewPagerAdapter extends PagerAdapter {
+    private LayoutInflater layoutInflater;
     private Context context;
     private int[] sliderImage = {
             R.drawable.img1647,
@@ -26,12 +27,14 @@ public class ViewPagerAdapter extends PagerAdapter {
             R.drawable.img1694,
             R.drawable.img1701
     };
+
     
 
 
     //---------------------------------------------------------------------------------------------
     public ViewPagerAdapter(Context context) {
         this.context = context;
+        this.layoutInflater = (LayoutInflater) context.getSystemService(context.LAYOUT_INFLATER_SERVICE);
     }
 
     //---------------------------------------------------------------------------------------------
@@ -46,7 +49,7 @@ public class ViewPagerAdapter extends PagerAdapter {
     //---------------------------------------------------------------------------------------------
     @Override
     public boolean isViewFromObject( View view,  Object object) {
-        return view == ((ScrollView) object);
+        return view == ((View) object);
         //return view == ((LinearLayout) object);
     }
 
@@ -54,19 +57,24 @@ public class ViewPagerAdapter extends PagerAdapter {
     @Override
     public Object instantiateItem( ViewGroup container, int position) {
 
+        View v = layoutInflater
+                .inflate(R.layout.view_pager, container, false);
+
         //---------------------------------------------------------------------------------------------
-        ScrollView scrollView = new ScrollView(context);
+       /* ScrollView scrollView = new ScrollView(context);
         ImageView imageView = new ImageView(context);
         //ImageView imageView = new ImageView(context);
         //imageView = imageView.findViewById(R.id.imageView_id);
         TextView textView = new TextView(context);
-        LinearLayout linearLayout = new LinearLayout(context);
+        LinearLayout linearLayout = new LinearLayout(context);*/
+       ImageView imageView = v.findViewById(R.id.imageView_id);
+       TextView textView = v.findViewById(R.id.textView_id);
 
         //---------------------------------------------------------------------------------------------
-        linearLayout.addView(textView,0);
+       /* linearLayout.addView(textView,0);
         linearLayout.addView(imageView,0);
         linearLayout.setOrientation(LinearLayout.VERTICAL);
-        //linearLayout.setRotation(-90);
+        //linearLayout.setRotation(-90);*/
 
         //---------------------------------------------------------------------------------------------
         imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
@@ -78,19 +86,23 @@ public class ViewPagerAdapter extends PagerAdapter {
         textView.setBackgroundColor(0xffffffff);
 
         //---------------------------------------------------------------------------------------------
-        scrollView.addView(linearLayout,0);
+        /*scrollView.addView(linearLayout,0);
         //((ViewPager) container).addView(imageView,0);//add imageView
         //((ViewPager) container).addView(linearLayout,0);//add linearView
-        ((ViewPager) container).addView(scrollView,0);//add scrollView
+        ((ViewPager) container).addView(scrollView,0);//add scrollView*/
 
-        return scrollView;
+        //return scrollView;
         //return linearLayout;
+
+        container.addView(v);
+        return v;
     }
     //---------------------------------------------------------------------------------------------
     @Override
     public void destroyItem(@NonNull ViewGroup container, int position, @NonNull Object object) {
-        ((ViewPager) container).removeView((ScrollView) object);
+        //((ViewPager) container).removeView((ScrollView) object);
         //((ViewPager) container).removeView((LinearLayout) object);
+        ((ViewPager) container).removeView((View) object);
     }
 
 }

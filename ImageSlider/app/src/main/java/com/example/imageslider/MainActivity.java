@@ -68,6 +68,7 @@ public class MainActivity extends AppCompatActivity {
 
         adapter = new ViewPagerAdapter(getApplicationContext());
 
+
         viewPager.setAdapter(adapter);
         //viewPager.setRotation(90);
 
