@@ -61,38 +61,20 @@ public class ViewPagerAdapter extends PagerAdapter {
                 .inflate(R.layout.view_pager, container, false);
 
         //---------------------------------------------------------------------------------------------
-       /* ScrollView scrollView = new ScrollView(context);
-        ImageView imageView = new ImageView(context);
-        //ImageView imageView = new ImageView(context);
-        //imageView = imageView.findViewById(R.id.imageView_id);
-        TextView textView = new TextView(context);
-        LinearLayout linearLayout = new LinearLayout(context);*/
        ImageView imageView = v.findViewById(R.id.imageView_id);
        TextView textView = v.findViewById(R.id.textView_id);
+       TextView textView2 = v.findViewById(R.id.textView2_id);
+       TextView textView3 = v.findViewById(R.id.textView3_id);
 
         //---------------------------------------------------------------------------------------------
-       /* linearLayout.addView(textView,0);
-        linearLayout.addView(imageView,0);
-        linearLayout.setOrientation(LinearLayout.VERTICAL);
-        //linearLayout.setRotation(-90);*/
-
-        //---------------------------------------------------------------------------------------------
-        imageView.setScaleType(ImageView.ScaleType.CENTER_CROP);
         imageView.setImageResource(sliderImage[position]);
 
         //---------------------------------------------------------------------------------------------
-        textView.setText("test text " + position);
-        textView.setTextSize(30);
-        textView.setBackgroundColor(0xffffffff);
+        textView.setText("test text 1" + position);
+        textView2.setText("test text 2" + position);
+        textView3.setText("test text 3" + position);
 
-        //---------------------------------------------------------------------------------------------
-        /*scrollView.addView(linearLayout,0);
-        //((ViewPager) container).addView(imageView,0);//add imageView
-        //((ViewPager) container).addView(linearLayout,0);//add linearView
-        ((ViewPager) container).addView(scrollView,0);//add scrollView*/
-
-        //return scrollView;
-        //return linearLayout;
+        //---------------------------------------------------------------------------------------------;
 
         container.addView(v);
         return v;
