@@ -52,6 +52,9 @@
         <activity android:name=".activities.PathDetailsActivity"
             android:screenOrientation="sensor"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.PhotoDetailsActivity"
+            android:screenOrientation="sensor"
+            android:theme="@style/AppTheme.NoActionBar" />
     </application>
 
 </manifest>
