@@ -7,16 +7,41 @@ import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
 import com.example.mobiledev.R;
+import com.google.android.material.tabs.TabLayout;
 
 public class PathDetailsActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;
     private PathMapFragment pathMapFragment;
 
+    private TabLayout tabLayout;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.path_details_activity);
+
+        tabLayout = findViewById(R.id.tabs);
+        tabLayout.addOnTabSelectedListener(new TabLayout.OnTabSelectedListener() {
+            @Override
+            public void onTabSelected(TabLayout.Tab tab) {
+                if (tab.getPosition() == 0) {
+                    setDetailsFragment(photosFragment);
+                } else {
+                    setDetailsFragment(pathMapFragment);
+                }
+            }
+
+            @Override
+            public void onTabUnselected(TabLayout.Tab tab) {
+
+            }
+
+            @Override
+            public void onTabReselected(TabLayout.Tab tab) {
+
+            }
+        });
 
         photosFragment = PhotosFragment.newInstance();
         pathMapFragment = PathMapFragment.newInstance();
@@ -43,17 +68,10 @@ public class PathDetailsActivity extends BaseActivity {
                 .findFragmentById(R.id.fragment_container);
 
         if (!fragment.equals(lastFragment)) {
-            MenuItem menuItem = toolbar.getMenu().findItem(R.id.action_view_mode);
 
             if (fragment.getClass().equals(PhotosFragment.class)) {
-                if (menuItem != null) {
-                    menuItem.setVisible(false);
-                }
                 toolbar.setTitle(R.string.title_photos);
             } else {
-                if (menuItem != null) {
-                    menuItem.setVisible(true);
-                }
                 toolbar.setTitle(R.string.title_paths);
             }
 
@@ -65,9 +83,6 @@ public class PathDetailsActivity extends BaseActivity {
                     .setCustomAnimations(R.anim.fade_in_short, R.anim.fade_out_short)
                     .replace(R.id.fragment_container, fragment)
                     .commit();
-        } else {
-            ((RecyclerView) fragment.getView().findViewById(R.id.gallery_recycler))
-                    .scrollToPosition(0);
         }
     }
 

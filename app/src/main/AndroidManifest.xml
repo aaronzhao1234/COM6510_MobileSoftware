@@ -44,11 +44,6 @@
             android:configChanges="orientation"
             android:screenOrientation="sensor"
             android:theme="@style/AppTheme.NoActionBar" />
-        <activity
-            android:name=".activities.PathGalleryActivity"
-            android:configChanges="orientation"
-            android:screenOrientation="sensor"
-            android:theme="@style/AppTheme.NoActionBar" />
         <activity android:name=".activities.PathDetailsActivity"
             android:screenOrientation="sensor"
             android:theme="@style/AppTheme.NoActionBar" />
