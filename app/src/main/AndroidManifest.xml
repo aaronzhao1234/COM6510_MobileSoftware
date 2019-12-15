@@ -1,6 +1,5 @@
-<?xml version="1.0" encoding="utf-8"?>
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-    package="com.example.mobiledev">
+    package="uk.ac.shef.oak.com4510">
     <!--
          The ACCESS_COARSE/FINE_LOCATION permissions are not required to use
          Google Maps Android API v2, but you must specify either coarse or fine
@@ -50,6 +49,12 @@
         <activity android:name=".activities.PhotoDetailsActivity"
             android:screenOrientation="sensor"
             android:theme="@style/AppTheme.NoActionBar" />
+        <activity android:name=".activities.CreatePathActivity"
+            android:screenOrientation="sensor"
+            android:theme="@style/AppTheme.NoActionBar"/>
+        <activity android:name=".activities.PathTrackingActivity"
+            android:screenOrientation="sensor"
+            android:theme="@style/AppTheme.NoActionBar"/>
     </application>
 
 </manifest>

@@ -1,0 +1,32 @@
+package uk.ac.shef.oak.com4510.database;
+
+import androidx.lifecycle.LiveData;
+import androidx.room.Dao;
+import androidx.room.Delete;
+import androidx.room.Insert;
+import androidx.room.Query;
+
+import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.utils.DaoInterface;
+
+import java.util.List;
+
+@Dao
+public interface PathDao extends DaoInterface {
+
+    @Query("SELECT * FROM path")
+    LiveData<List<Path>> getAll();
+
+    @Query("SELECT * FROM path WHERE id = (:pathId)")
+    LiveData<List<Path>> getById(int pathId);
+
+    @Insert
+    void insertAll(Path... paths);
+
+    @Delete
+    void delete(Path path);
+
+    @Query("SELECT COUNT(*) FROM path")
+    int count();
+
+}
