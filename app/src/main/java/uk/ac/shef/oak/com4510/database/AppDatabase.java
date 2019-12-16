@@ -14,7 +14,7 @@ import uk.ac.shef.oak.com4510.utils.Converters;
 
 import java.util.Date;
 
-@Database(entities = {Path.class, PathPhoto.class}, version = 11, exportSchema = false)
+@Database(entities = {Path.class, PathPhoto.class}, version = 12, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 

@@ -25,11 +25,8 @@ public class Barometer {
     private long BAROMETER_READING_FREQUENCY= 20000;
     private long lastReportTime = 0;
     private boolean started;
-    //private Accelerometer accelerometer;
-    /**
-     * this is used to stop the barometer if we have not seen any movement in the last 20 seconds
-     */
-    private static final long STOPPING_THRESHOLD = (long)20000;
+
+    private float mPressureValue;
 
 
     public Barometer(Context context) {
@@ -63,9 +60,9 @@ public class Barometer {
                     // misbehave and start sending data very quickly
                     if (diff >= mSamplingRateNano) {
                         long actualTimeInMseconds = timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
-                        float pressureValue = event.values[0];
+                        mPressureValue = event.values[0];
                         int accuracy = event.accuracy;
-                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current barometric pressure: " + pressureValue + "with accuract: " + accuracy);
+                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current barometric pressure: " + mPressureValue + "with accuract: " + accuracy);
                         lastReportTime = event.timestamp;
                         // if we have not see any movement on the side of the accelerometer, let's stop
                        /* long timeLag= actualTimeInMseconds-accelerometer.getLastReportTime();
@@ -134,5 +131,9 @@ public class Barometer {
 
     public void setStarted(boolean started) {
         this.started = started;
+    }
+
+    public float getmPressureValue(){
+        return mPressureValue;
     }
 }

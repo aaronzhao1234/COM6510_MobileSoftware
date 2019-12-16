@@ -7,12 +7,15 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
+import java.util.Date;
+
 import uk.ac.shef.oak.com4510.utils.EntityInterface;
 
 @Entity(indices = {@Index("path_id")},
         foreignKeys = @ForeignKey(entity = Path.class,
         parentColumns = "id",
         childColumns = "path_id"))
+
 public class PathPhoto implements EntityInterface {
 
     @PrimaryKey(autoGenerate = true)
@@ -32,6 +35,9 @@ public class PathPhoto implements EntityInterface {
 
     @ColumnInfo(name = "path_id")
     private int pathId;
+
+    @ColumnInfo(name = "time")
+    private Date date;
 
     public PathPhoto(String coordinates, float temperature, float pressure, String photoPath, int pathId) {
         this.coordinates = coordinates;
@@ -89,4 +95,11 @@ public class PathPhoto implements EntityInterface {
         this.pathId = pathId;
     }
 
+    public Date getDate() {
+        return date;
+    }
+
+    public void setDate(Date date) {
+        this.date = date;
+    }
 }

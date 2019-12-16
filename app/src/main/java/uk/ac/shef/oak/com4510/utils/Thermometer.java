@@ -25,12 +25,8 @@ public class Thermometer {
     private long THERMOMETER_READING_FREQUENCY = 20000;
     private long lastReportTime = 0;
     private boolean started;
-    //private Accelerometer accelerometer;
-    /**
-     * this is used to stop the barometer if we have not seen any movement in the last 20 seconds
-     */
-    private static final long STOPPING_THRESHOLD = (long)20000;
 
+    private float mTemperatureValue;
 
     public Thermometer(Context context) {
         // http://androidforums.com/threads/how-to-get-time-of-last-system-boot.548661/
@@ -63,9 +59,9 @@ public class Thermometer {
                     // misbehave and start sending data very quickly
                     if (diff >= mSamplingRateNano) {
                         long actualTimeInMseconds = timePhoneWasLastRebooted + (long) (event.timestamp / 1000000.0);
-                        float temperatureValue = event.values[0];
+                        mTemperatureValue = event.values[0];
                         int accuracy = event.accuracy;
-                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current temperature: " + temperatureValue + "with accuract: " + accuracy);
+                        Log.i(TAG, Utilities.mSecsToString(actualTimeInMseconds) + ": current temperature: " + mTemperatureValue + "with accuract: " + accuracy);
                         lastReportTime = event.timestamp;
                     }
                 }
@@ -130,5 +126,9 @@ public class Thermometer {
 
     public void setStarted(boolean started) {
         this.started = started;
+    }
+
+    public float getmPressureValue(){
+        return mTemperatureValue;
     }
 }

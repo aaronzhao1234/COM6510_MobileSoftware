@@ -24,7 +24,6 @@ public class CreatePathActivity extends BaseActivity {
             public void onClick(View v) {
                 Intent intent= new Intent(CreatePathActivity.this, PathTrackingActivity.class);
                 startActivity(intent);
-
             }
         });
     }
