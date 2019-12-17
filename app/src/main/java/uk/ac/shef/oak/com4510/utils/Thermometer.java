@@ -15,7 +15,7 @@ import android.util.Log;
 
 
 public class Thermometer {
-    private static final String TAG = Barometer.class.getSimpleName();
+    private static final String TAG = Thermometer.class.getSimpleName();
     private long mSamplingRateInMSecs;
     private long mSamplingRateNano;
     private SensorEventListener mTemperatureListener = null;
