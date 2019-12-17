@@ -295,6 +295,11 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
     private void finishTrackingPath() {
         trackingPath.setEndTime(new Date());
         galleryViewModel.insertPath(trackingPath, null);
+
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("PathTracking", MODE_PRIVATE);
+        SharedPreferences.Editor editor = prefs.edit();
+        editor.remove("pathId");
+        editor.commit();
     }
 
 }
