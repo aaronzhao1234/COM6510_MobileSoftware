@@ -4,6 +4,7 @@ import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.location.Location;
 import android.os.Bundle;
@@ -12,10 +13,9 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.core.app.ActivityCompat;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
-import uk.ac.shef.oak.com4510.R;
-import uk.ac.shef.oak.com4510.utils.Barometer;
-import uk.ac.shef.oak.com4510.utils.Thermometer;
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
@@ -31,12 +31,16 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.text.DateFormat;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
+import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.utils.Barometer;
+import uk.ac.shef.oak.com4510.utils.Thermometer;
+import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 public class PathTrackingActivity extends BaseActivity implements OnMapReadyCallback {
     private Barometer barometer;
@@ -51,10 +55,29 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
 
     private Activity activity;
 
+    private GalleryViewModel galleryViewModel;
+    private Path trackingPath;
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.path_tracking_activity);
+
+        galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
+
+        SharedPreferences prefs = getApplicationContext().getSharedPreferences("PathTracking", MODE_PRIVATE);
+        int id = (int) prefs.getLong("pathId", -1);
+
+        if (id == -1) {
+            finish();
+        } else {
+            galleryViewModel.getPathById(id).observe(this, new Observer<List<Path>>() {
+                @Override
+                public void onChanged(List<Path> paths) {
+                    trackingPath = paths.get(0);
+                }
+            });
+        }
 
         activity= this;
 
@@ -62,11 +85,13 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         stopButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                finishTrackingPath();
+
                 Intent intent= new Intent(PathTrackingActivity.this, HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
                 startActivity(intent);
             }
         });
-
 
         barometer = new Barometer(this);
         barometer.startSensingPressure();
@@ -266,4 +291,10 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
     public Activity getActivity() {
         return activity;
     }
+
+    private void finishTrackingPath() {
+        trackingPath.setEndTime(new Date());
+        galleryViewModel.insertPath(trackingPath, null);
+    }
+
 }

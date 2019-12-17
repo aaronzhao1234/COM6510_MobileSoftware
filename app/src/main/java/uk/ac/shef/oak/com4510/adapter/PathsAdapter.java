@@ -19,6 +19,7 @@ import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.activities.PathDetailsActivity;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
+import uk.ac.shef.oak.com4510.utils.Utilities;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 import java.util.ArrayList;
@@ -53,6 +54,9 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
                         holder.adapter.setPhotoList(pathPhotos, pathList.get(position).getId());
                     }
                 });
+
+        holder.dateText.setText(Utilities.dateToStringSimple(pathList.get(position).getStartTime()));
+        holder.titleText.setText(pathList.get(position).getTitle());
 
         if (collapseAction) {
             holder.show.setText(">");
@@ -96,6 +100,9 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
         View pathHeading;
         TextView show;
 
+        TextView titleText;
+        TextView dateText;
+
         public PathViewHolder(View v) {
             super(v);
 
@@ -103,6 +110,9 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
             show = v.findViewById(R.id.show);
             gallery = v.findViewById(R.id.gallery_recycler);
             gallery.setHasFixedSize(false);
+
+            titleText = v.findViewById(R.id.titleText);
+            dateText = v.findViewById(R.id.dateText);
 
             // use a grid layout manager
             LinearLayoutManager layoutManager

@@ -18,4 +18,8 @@ public class Utilities {
         formatter.setTimeZone(TimeZone.getTimeZone("UTC"));
         return (formatter.format(date));
     }
+
+    public static String dateToStringSimple(Date date) {
+        return new SimpleDateFormat("dd/MM/yyyy").format(date);
+    }
 }

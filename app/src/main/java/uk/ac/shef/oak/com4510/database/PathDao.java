@@ -4,6 +4,7 @@ import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
 import androidx.room.Delete;
 import androidx.room.Insert;
+import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
 import uk.ac.shef.oak.com4510.model.Path;
@@ -14,14 +15,14 @@ import java.util.List;
 @Dao
 public interface PathDao extends DaoInterface {
 
-    @Query("SELECT * FROM path")
+    @Query("SELECT * FROM path ORDER BY id DESC")
     LiveData<List<Path>> getAll();
 
-    @Query("SELECT * FROM path WHERE id = (:pathId)")
+    @Query("SELECT * FROM path WHERE id == (:pathId)")
     LiveData<List<Path>> getById(int pathId);
 
-    @Insert
-    void insertAll(Path... paths);
+    @Insert(onConflict = OnConflictStrategy.REPLACE)
+    long[] insertAll(Path... paths);
 
     @Delete
     void delete(Path path);

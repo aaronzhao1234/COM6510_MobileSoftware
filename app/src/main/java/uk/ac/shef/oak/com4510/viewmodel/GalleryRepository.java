@@ -37,15 +37,19 @@ public class GalleryRepository {
         return allPaths;
     }
 
+    public LiveData<List<Path>> getPathById(int id) {
+        return pathDao.getById(id);
+    }
+
     public LiveData<List<PathPhoto>> getAllPathPhotos() {
         return allPathPhotos;
     }
 
-    public void insert(final PathPhoto pathPhoto, Runnable callback) {
+    public void insert(final PathPhoto pathPhoto, InsertCallback callback) {
         new InsertTaskAsync(pathPhotoDao, callback).execute((EntityInterface) pathPhoto);
     }
 
-    public void insert(final Path path, Runnable callback) {
+    public void insert(final Path path, InsertCallback callback) {
         new InsertTaskAsync(pathDao, callback).execute((EntityInterface) path);
     }
 
@@ -53,34 +57,39 @@ public class GalleryRepository {
         return pathPhotoDao.getAllByPathId(pathId);
     }
 
-    private static class InsertTaskAsync extends AsyncTask<EntityInterface, Void, Void> {
+    private static class InsertTaskAsync extends AsyncTask<EntityInterface, Void, Long> {
 
-        private Runnable callback;
+        private InsertCallback callback;
         private DaoInterface dao;
 
-        public InsertTaskAsync(DaoInterface dao, Runnable callback) {
+        public InsertTaskAsync(DaoInterface dao, InsertCallback callback) {
             this.dao = dao;
             this.callback = callback;
         }
 
         @Override
-        protected Void doInBackground(EntityInterface... entities) {
+        protected Long doInBackground(EntityInterface... entities) {
+            long id = -1;
             for (EntityInterface entry: entities) {
                 if (entry instanceof PathPhoto) {
-                    ((PathPhotoDao) dao).insertAll((PathPhoto) entry);
+                    id = ((PathPhotoDao) dao).insertAll((PathPhoto) entry)[0];
                 } else if (entry instanceof Path) {
-                    ((PathDao) dao).insertAll((Path) entry);
+                    id = ((PathDao) dao).insertAll((Path) entry)[0];
                 }
             }
 
-            return null;
+            return id;
         }
 
         @Override
-        protected void onPostExecute(Void aVoid) {
-            if (callback != null) callback.run();
+        protected void onPostExecute(Long id) {
+            if (callback != null) callback.call(id);
         }
 
+    }
+
+    public abstract static class InsertCallback {
+        public abstract void call(long id);
     }
 
 }
