@@ -1,14 +1,20 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.ActivityManager;
 import android.content.Context;
 import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
@@ -25,6 +31,7 @@ public class HomeActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;
     private PathListFragment pathListFragment;
+    private static final int PERMISSION_STATUS = 1234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -62,8 +69,11 @@ public class HomeActivity extends BaseActivity {
 
         // set initial gallery fragment to activity
         setGalleryFragment(photosFragment);
+
+        checkPermission();
     }
 
+    @SuppressLint("RestrictedApi")
     @Override
     protected void onResume() {
         super.onResume();
@@ -164,6 +174,29 @@ public class HomeActivity extends BaseActivity {
             }
         }
         return false;
+    }
+
+    private void checkPermission(){
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
+            // Should we show an explanation?
+            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
+                    Manifest.permission.CAMERA)) {
+
+            } else {
+                // No explanation needed, we can request the permission.
+                ActivityCompat.requestPermissions(this, new String[]{
+                        Manifest.permission.CAMERA,
+                        Manifest.permission.ACCESS_FINE_LOCATION,
+                        Manifest.permission.READ_EXTERNAL_STORAGE,
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
+            }
+            return;
+        }
     }
 
 }

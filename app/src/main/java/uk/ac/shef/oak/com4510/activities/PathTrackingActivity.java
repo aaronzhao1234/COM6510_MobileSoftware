@@ -62,14 +62,10 @@ import uk.ac.shef.oak.com4510.utils.Thermometer;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 public class PathTrackingActivity extends BaseActivity implements OnMapReadyCallback {
-
-    private static final int ACCESS_FINE_LOCATION = 123;
-
     private Barometer barometer;
     private Thermometer thermometer;
 
     private static GoogleMap mMap;
-    private static final int PERMISSION_STATUS = 1234;
 
     private Button stopButton;
 
@@ -123,8 +119,8 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        checkPermission();
         initEasyImage();
+
         startLocationUpdates(getApplicationContext());
 
         FloatingActionButton fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
@@ -147,34 +143,10 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
     @Override
     protected void onDestroy() {
         super.onDestroy();
-
         barometer.stopBarometer();
         thermometer.stopThermometer();
     }
 
-    @RequiresApi(api = Build.VERSION_CODES.P)
-    private void checkPermission(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
-            }
-            return;
-        }
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startLocationUpdates(Context context) {
@@ -182,11 +154,13 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         context.startForegroundService(intent);
     }
 
+
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.setMyLocationEnabled(true);
+        boolean permission =  ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED;
+        mMap.setMyLocationEnabled(permission);
     }
 
     @Override
@@ -220,7 +194,7 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         });
     }
 
-    @SuppressLint("MissingPermission")
+/*    @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode,
                                            String permissions[], int[] grantResults) {
@@ -241,7 +215,7 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 return;
             }
         }
-    }
+    }*/
 
     /**
      * add to the grid
@@ -294,7 +268,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
     private void finishTrackingPath() {
         trackingPath.setEndTime(new Date());
         galleryViewModel.insertPath(trackingPath, null);
-
         stopService(PathTrackingActivity.this.intent);
     }
 
@@ -303,7 +276,7 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
 
         PathPhoto photo = new PathPhoto(
                 prefs.getString("currentLocation", ""),
-                barometer.getmPressureValue(),
+                thermometer.getmTemperatureValue(),
                 barometer.getmPressureValue(),
                 image.toURI().toString(),
                 trackingPath.getId()

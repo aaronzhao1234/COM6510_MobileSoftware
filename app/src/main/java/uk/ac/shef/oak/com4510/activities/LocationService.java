@@ -77,8 +77,8 @@ public class LocationService extends IntentService {
         startForeground(FOREGROUND_ID, notification);
 
         mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(10000);
-        mLocationRequest.setFastestInterval(5000);
+        mLocationRequest.setInterval(20000);
+        mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
     }
@@ -107,7 +107,6 @@ public class LocationService extends IntentService {
             super.onLocationResult(locationResult);
             mCurrentLocation = locationResult.getLastLocation();
             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
-
             // Save location to shared prefs for other activities to access
             SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
@@ -137,4 +136,9 @@ public class LocationService extends IntentService {
         manager.createNotificationChannel(chan);
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+    }
 }

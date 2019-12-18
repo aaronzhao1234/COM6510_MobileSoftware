@@ -4,6 +4,8 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.SharedMemory;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -21,8 +23,9 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 public class CreatePathActivity extends BaseActivity {
 
-
+    private EditText titleInput;
     private GalleryViewModel galleryViewModel;
+    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -31,12 +34,31 @@ public class CreatePathActivity extends BaseActivity {
 
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
-        Button button=(Button) findViewById(R.id.button);
+        titleInput = findViewById(R.id.titleInput);
+        titleInput.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+                String title = titleInput.getText().toString().trim();
+                button.setEnabled(!title.isEmpty());
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+
+            }
+        });
+
+        button=(Button) findViewById(R.id.button);
+        button.setEnabled(false);
         button.setOnClickListener(new View.OnClickListener() {
 
             @Override
             public void onClick(View v) {
-                EditText titleInput = findViewById(R.id.titleInput);
                 EditText descriptionInput = findViewById(R.id.descriptionInput);
 
                 Path newPath = new Path(

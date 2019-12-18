@@ -128,7 +128,7 @@ public class Thermometer {
         this.started = started;
     }
 
-    public float getmPressureValue(){
+    public float getmTemperatureValue(){
         return mTemperatureValue;
     }
 }
