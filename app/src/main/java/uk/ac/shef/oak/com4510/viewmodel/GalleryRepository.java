@@ -57,6 +57,10 @@ public class GalleryRepository {
         pathDao.delete(path);
     }
 
+    public void remove(PathPhoto pathPhoto) {
+        pathPhotoDao.delete(pathPhoto);
+    }
+
     public LiveData<List<PathPhoto>> getPathPhotosByPathId(int pathId) {
         return pathPhotoDao.getAllByPathId(pathId);
     }

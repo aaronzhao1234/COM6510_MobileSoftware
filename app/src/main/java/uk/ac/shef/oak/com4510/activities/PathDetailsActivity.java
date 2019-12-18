@@ -1,26 +1,34 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
 
+import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 import com.google.android.material.tabs.TabLayout;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class PathDetailsActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;
     private PathMapFragment pathMapFragment;
 
+    private Path path;
     private TabLayout tabLayout;
     private View detailsView;
 
@@ -61,7 +69,19 @@ public class PathDetailsActivity extends BaseActivity {
         photosFragment = PhotosFragment.newInstance();
         pathMapFragment = PathMapFragment.newInstance();
 
+        int pathId = getIntent().getExtras().getInt("pathId", -1);
+        galleryViewModel.getPathById(pathId).observe(this, new Observer<List<Path>>() {
+            @Override
+            public void onChanged(List<Path> paths) {
+                if (paths.size() > 0) {
+                    path = paths.get(0);
+                    setDetailsView();
+                }
+            }
+        });
+
         toolbar.setTitle(R.string.path_details);
+
 
         // Set back button
         assert getSupportActionBar() != null;
@@ -76,6 +96,39 @@ public class PathDetailsActivity extends BaseActivity {
     public boolean onSupportNavigateUp() {
         onBackPressed();
         return true;
+    }
+
+    @Override
+    public boolean onPrepareOptionsMenu(Menu menu) {
+        MenuItem menuItem = toolbar.getMenu().findItem(R.id.action_delete);
+        if (menuItem != null) {
+            menuItem.setVisible(true);
+        }
+
+        return super.onPrepareOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        if (item.getItemId() == R.id.action_delete) {
+            galleryViewModel.getPhotosByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<PathPhoto>>() {
+                @Override
+                public void onChanged(final List<PathPhoto> pathPhotos) {
+                    if (path != null) {
+                        Executors.newSingleThreadExecutor().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
+                                galleryViewModel.removePath(path);
+                                finish();
+                            }
+                        });
+                    }
+                }
+            });
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     private void setDetailsFragment(final Fragment fragment) {
@@ -105,22 +158,15 @@ public class PathDetailsActivity extends BaseActivity {
     }
 
     private void setDetailsView() {
-        int pathId = getIntent().getExtras().getInt("pathId", -1);
+        if (path != null) {
+            TextView description = findViewById(R.id.description);
+            description.setText(path.getDescription().length() > 0 ? path.getDescription() : "No description available");
 
-        galleryViewModel.getPathById(pathId).observe(this, new Observer<List<Path>>() {
-            @Override
-            public void onChanged(List<Path> paths) {
-                Path path = paths.get(0);
+            assert getSupportActionBar() != null;
+            getSupportActionBar().setTitle(path.getTitle());
 
-                TextView description = findViewById(R.id.description);
-                description.setText(path.getDescription().length() > 0 ? path.getDescription() : "No description available");
-
-                assert getSupportActionBar() != null;
-                getSupportActionBar().setTitle(path.getTitle());
-
-                detailsView.setVisibility(View.VISIBLE);
-            }
-        });
+            detailsView.setVisibility(View.VISIBLE);
+        }
     }
 
 }

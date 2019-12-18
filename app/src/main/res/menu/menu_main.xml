@@ -4,8 +4,16 @@
     tools:context="com.example.mobiledev.activities.HomeActivity">
 
     <item
+        android:id="@+id/action_delete"
+        android:orderInCategory="2"
+        android:title="Delete"
+        android:icon="@android:drawable/ic_menu_delete"
+        android:visible="false"
+        app:showAsAction="ifRoom" />
+
+    <item
         android:id="@+id/action_view_mode"
-        android:orderInCategory="300"
+        android:orderInCategory="2"
         android:title="@string/action_view_mode"
         android:icon="@drawable/ic_view_list_24px"
         android:visible="false"
@@ -13,7 +21,7 @@
 
     <item
         android:id="@+id/action_settings"
-        android:orderInCategory="100"
+        android:orderInCategory="1"
         android:title="@string/action_settings"
         app:showAsAction="never" />
 

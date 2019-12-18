@@ -51,8 +51,11 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
                 new Observer<List<PathPhoto>>() {
                     @Override
                     public void onChanged(List<PathPhoto> pathPhotos) {
-                        if (pathPhotos.size() == 0) holder.empty.setVisibility(View.VISIBLE);
-                        holder.adapter.setPhotoList(pathPhotos, pathList.get(position).getId());
+                        if (pathPhotos.size() == 0) {
+                            holder.empty.setVisibility(View.VISIBLE);
+                        } else {
+                            holder.adapter.setPhotoList(pathPhotos, pathList.get(position).getId());
+                        }
                     }
                 });
 

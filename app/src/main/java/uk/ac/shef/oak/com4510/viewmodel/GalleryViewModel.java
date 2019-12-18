@@ -4,6 +4,7 @@ import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
+import androidx.lifecycle.Observer;
 
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
@@ -40,6 +41,10 @@ public class GalleryViewModel extends AndroidViewModel {
 
     public LiveData<List<PathPhoto>> GetPhotosByPath(int pathId) {
         return repository.getPathPhotosByPathId(pathId);
+    }
+
+    public void removePhoto(PathPhoto pathPhoto) {
+        repository.remove(pathPhoto);
     }
 
     public void removePath(Path path) {
