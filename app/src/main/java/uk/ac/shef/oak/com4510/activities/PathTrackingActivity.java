@@ -7,7 +7,11 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.net.Uri;
 import android.os.Bundle;
+import android.os.Environment;
+import android.os.FileUtils;
+import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -34,6 +38,14 @@ import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
+import java.io.FileInputStream;
+import java.io.FileOutputStream;
+import java.io.IOException;
+import java.nio.channels.FileChannel;
+import java.nio.file.Files;
+import java.nio.file.Paths;
+import java.text.DateFormat;
+import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
 
@@ -41,6 +53,7 @@ import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.Barometer;
 import uk.ac.shef.oak.com4510.utils.Thermometer;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
@@ -231,7 +244,11 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
 
             @Override
             public void onImagesPicked(List<File> imageFiles, EasyImage.ImageSource source, int type) {
-                onPhotosReturned(imageFiles);
+                try {
+                    onPhotosReturned(imageFiles);
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
             }
 
             @Override
@@ -249,10 +266,26 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
      * add to the grid
      * @param returnedPhotos
      */
-    private void onPhotosReturned(List<File> returnedPhotos) {
-/*        myPictureList.addAll(getImageElements(returnedPhotos));
-        mAdapter.notifyDataSetChanged();
-        mRecyclerView.scrollToPosition(returnedPhotos.size() - 1);*/
+    private void onPhotosReturned(List<File> returnedPhotos) throws IOException {
+        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+        String imageFileName = "JPEG_" + timeStamp + "_";
+        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+        File image = new File(storageDir, imageFileName + ".jpg");
+
+        FileInputStream is = new FileInputStream(returnedPhotos.get(0));
+        FileOutputStream  os = new FileOutputStream(image);
+        FileChannel inChannel = is.getChannel();
+        FileChannel outChannel = os.getChannel();
+        inChannel.transferTo(0, inChannel.size(), outChannel);
+        is.close();
+        os.close();
+
+        storeImage(image);
+
+        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
+        Uri contentUri = Uri.fromFile(image);
+        intent.setData(contentUri);
+        this.sendBroadcast(intent);
     }
 
     /**
@@ -289,6 +322,20 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         SharedPreferences.Editor editor = prefs.edit();
         editor.remove("pathId");
         editor.commit();
+    }
+
+    private void storeImage(File image) {
+        SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
+
+        PathPhoto photo = new PathPhoto(
+                prefs.getString("currentLocation", ""),
+                barometer.getmPressureValue(),
+                barometer.getmPressureValue(),
+                image.toURI().toString(),
+                trackingPath.getId()
+        );
+
+        galleryViewModel.insertPhoto(photo, null);
     }
 
 }

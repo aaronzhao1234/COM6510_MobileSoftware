@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.adapter;
 
 import android.content.Intent;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -36,7 +37,7 @@ public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.PhotoViewH
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         PathPhoto photo = photoList.get(position);
-        holder.imageView.setImageResource(Integer.parseInt(photo.getPhotoPath()));
+        holder.imageView.setImageURI(Uri.parse(photo.getPhotoPath()));
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override

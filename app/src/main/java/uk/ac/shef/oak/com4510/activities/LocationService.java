@@ -2,6 +2,7 @@ package uk.ac.shef.oak.com4510.activities;
 
 import android.app.Service;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.location.Location;
 import android.os.IBinder;
 import android.util.Log;
@@ -43,6 +44,12 @@ public class LocationService extends Service {
                             mCurrentLocation = location;
                             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
                             Log.i("MAP_bg", "new location " + mCurrentLocation.toString());
+
+                            SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
+                            SharedPreferences.Editor editor = prefs.edit();
+                            editor.putString("currentLocation", mCurrentLocation.toString());
+                            editor.commit();
+
                             // check if the activity has not been closed in the meantime
                             if (PathTrackingActivity.getLocationActivity()!=null)
                                 // any modification of the user interface must be done on the UI Thread. The Intent Service is running
