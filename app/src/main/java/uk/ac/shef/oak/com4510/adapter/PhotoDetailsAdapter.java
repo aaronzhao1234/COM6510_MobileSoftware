@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.adapter;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -59,7 +60,7 @@ public class PhotoDetailsAdapter extends PagerAdapter {
         TextView textView3 = v.findViewById(R.id.textView3_id);
 
         //---------------------------------------------------------------------------------------------
-        imageView.setImageResource(Integer.parseInt(photoList.get(position).getPhotoPath()));
+        imageView.setImageURI(Uri.parse(photoList.get(position).getPhotoPath()));
 
         //---------------------------------------------------------------------------------------------
         textView.setText("test text 1" + position);
