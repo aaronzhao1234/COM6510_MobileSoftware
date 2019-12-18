@@ -1,9 +1,12 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.app.ActivityManager;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.MenuItem;
 import android.view.View;
+import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
@@ -41,35 +44,15 @@ public class HomeActivity extends BaseActivity {
                 // TODO: Make the button do something
                 Intent intent = new Intent(HomeActivity.this, CreatePathActivity.class);
                 startActivity(intent);
+            }
+        });
 
-//                for (int i = 0; i < 10; i++) {
-//                    Path path = new Path("First path", "Some description",
-//                            new Date(), new Date());
-//
-//                    ViewModelProviders.of(HomeActivity.this)
-//                            .get(GalleryViewModel.class).insertPath(path, new Runnable() {
-//                        @Override
-//                        public void run() {
-//                            Log.d("debug", "done");
-//                        }
-//                    });
-//                }
-
-//                PathPhoto pathPhoto = new PathPhoto(
-//                        "none",
-//                        0f,
-//                        0f,
-//                        Integer.toString(R.drawable.image),
-//                        2
-//                );
-//
-//                ViewModelProviders.of(HomeActivity.this)
-//                        .get(GalleryViewModel.class).insertPhoto(pathPhoto, new Runnable() {
-//                    @Override
-//                    public void run() {
-//                        Log.d("debug", "done");
-//                    }
-//                });
+        Button btn = findViewById(R.id.continueTracking);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, PathTrackingActivity.class);
+                startActivity(intent);
             }
         });
 
@@ -82,6 +65,22 @@ public class HomeActivity extends BaseActivity {
     }
 
     @Override
+    protected void onResume() {
+        super.onResume();
+
+        FloatingActionButton fab = findViewById(R.id.fab);
+        Button btn = findViewById(R.id.continueTracking);
+
+        if (isLocationServiceRunnint()) {
+            btn.setVisibility(View.VISIBLE);
+            fab.setVisibility(View.GONE);
+        } else {
+            btn.setVisibility(View.GONE);
+            fab.setVisibility(View.VISIBLE);
+        }
+    }
+
+    @Override
     public boolean onOptionsItemSelected(MenuItem item) {
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
@@ -90,12 +89,6 @@ public class HomeActivity extends BaseActivity {
 
         if (id == R.id.action_settings) {
             // TODO: Make the button do something
-
-            GalleryViewModel vm = ViewModelProviders.of(HomeActivity.this)
-                        .get(GalleryViewModel.class);
-
-            for (Path path: AppDatabase.paths) vm.insertPath(path, null);
-            for (PathPhoto photo: AppDatabase.photos) vm.insertPhoto(photo, null);
 
             return true;
         } else if (id == R.id.action_view_mode) {
@@ -161,6 +154,16 @@ public class HomeActivity extends BaseActivity {
             ((RecyclerView) fragment.getView().findViewById(R.id.gallery_recycler))
                     .scrollToPosition(0);
         }
+    }
+
+    private boolean isLocationServiceRunnint() {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (service.service.getClassName().equals(LocationService.class.getName())) {
+                return true;
+            }
+        }
+        return false;
     }
 
 }

@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.activities;
 
 import android.Manifest;
+import android.annotation.SuppressLint;
 import android.app.Activity;
 import android.app.PendingIntent;
 import android.content.Context;
@@ -8,6 +9,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
 import android.net.Uri;
+import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileUtils;
@@ -17,6 +19,7 @@ import android.view.View;
 import android.widget.Button;
 
 import androidx.annotation.NonNull;
+import androidx.annotation.RequiresApi;
 import androidx.appcompat.app.AppCompatActivity;
 import androidx.core.app.ActivityCompat;
 import androidx.lifecycle.Observer;
@@ -59,42 +62,27 @@ import uk.ac.shef.oak.com4510.utils.Thermometer;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 public class PathTrackingActivity extends BaseActivity implements OnMapReadyCallback {
+
+    private static final int ACCESS_FINE_LOCATION = 123;
+
     private Barometer barometer;
     private Thermometer thermometer;
 
     private static GoogleMap mMap;
     private static final int PERMISSION_STATUS = 1234;
-    private LocationRequest mLocationRequest;
-    private FusedLocationProviderClient mFusedLocationClient;
-    private PendingIntent mLocationPendingIntent;
 
     private Button stopButton;
-
-    private static AppCompatActivity locationActivity;
-    private Activity activity;
 
     private GalleryViewModel galleryViewModel;
     private Path trackingPath;
 
     private Intent intent;
 
-    public static GoogleMap getMap() {
-        return mMap;
-    }
-
-    public static void setLocationActivity(AppCompatActivity activity) {
-        PathTrackingActivity.locationActivity = activity;
-    }
-
-    public static AppCompatActivity getLocationActivity() {
-        return locationActivity;
-    }
-
+    @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.path_tracking_activity);
-        setLocationActivity(this);
 
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
@@ -111,8 +99,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 }
             });
         }
-
-        activity= this;
 
         stopButton = (Button) findViewById(R.id.StopButton_id);
         stopButton.setOnClickListener(new View.OnClickListener() {
@@ -137,22 +123,15 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        mLocationRequest = new LocationRequest();
-        mLocationRequest.setInterval(20000);
-        mLocationRequest.setFastestInterval(15000);
-        mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
-        mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
-
         checkPermission();
-        startLocationUpdates(getApplicationContext());
-
         initEasyImage();
+        startLocationUpdates(getApplicationContext());
 
         FloatingActionButton fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
         fabCamera.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EasyImage.openCamera(getActivity(), 0);
+                EasyImage.openCamera(PathTrackingActivity.this, 0);
             }
         });
 
@@ -160,7 +139,7 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         fabGallery.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                EasyImage.openGallery(getActivity(), 0);
+                EasyImage.openGallery(PathTrackingActivity.this, 0);
             }
         });
     }
@@ -171,14 +150,15 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
 
         barometer.stopBarometer();
         thermometer.stopThermometer();
-        stopService(intent);
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.P)
     private void checkPermission(){
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED) {
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
+                || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
             if (ActivityCompat.shouldShowRequestPermissionRationale(this,
                     Manifest.permission.CAMERA)) {
@@ -189,39 +169,17 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                         Manifest.permission.CAMERA,
                         Manifest.permission.ACCESS_FINE_LOCATION,
                         Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE}, PERMISSION_STATUS);
+                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                        Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
             }
             return;
         }
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     private void startLocationUpdates(Context context) {
         intent = new Intent(context, LocationService.class);
-        //startService(intent);
-        mLocationPendingIntent = PendingIntent.getService(context, 1, intent, PendingIntent.FLAG_UPDATE_CURRENT);
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-
-            Task<Void> locationTask = mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationPendingIntent);
-            if (locationTask != null) {
-                locationTask.addOnFailureListener(new OnFailureListener() {
-                    @Override
-                    public void onFailure(@NonNull Exception e) {
-                        if (e instanceof ApiException) {
-                            Log.w("MapsActivity", ((ApiException) e).getStatusMessage());
-                        } else {
-                            Log.w("MapsActivity", e.getMessage());
-                        }
-                    }
-                });
-
-                locationTask.addOnCompleteListener(new OnCompleteListener<Void>() {
-                    @Override
-                    public void onComplete(@NonNull Task<Void> task) {
-                        Log.d("MapsActivity", "restarting gps successful!");
-                    }
-                });
-            }
-        }
+        context.startForegroundService(intent);
     }
 
     @Override
@@ -255,11 +213,34 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
             public void onCanceled(EasyImage.ImageSource source, int type) {
                 //Cancel handling, you might wanna remove taken photo if it was canceled
                 if (source == EasyImage.ImageSource.CAMERA) {
-                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(getActivity());
+                    File photoFile = EasyImage.lastlyTakenButCanceledPhoto(PathTrackingActivity.this);
                     if (photoFile != null) photoFile.delete();
                 }
             }
         });
+    }
+
+    @SuppressLint("MissingPermission")
+    @Override
+    public void onRequestPermissionsResult(int requestCode,
+                                           String permissions[], int[] grantResults) {
+        switch (requestCode) {
+            case PERMISSION_STATUS: {
+                // If request is cancelled, the result arrays are empty.
+                if (grantResults.length > 0
+                        && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+
+                    // permission was granted, yay! Do the
+                    // contacts-related task you need to do.
+
+                } else {
+                    finish();
+                    // permission denied, boo! Disable the
+                    // functionality that depends on this permission.
+                }
+                return;
+            }
+        }
     }
 
     /**
@@ -310,18 +291,11 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 .setAllowMultiplePickInGallery(true);
     }
 
-    public Activity getActivity() {
-        return activity;
-    }
-
     private void finishTrackingPath() {
         trackingPath.setEndTime(new Date());
         galleryViewModel.insertPath(trackingPath, null);
 
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("PathTracking", MODE_PRIVATE);
-        SharedPreferences.Editor editor = prefs.edit();
-        editor.remove("pathId");
-        editor.commit();
+        stopService(PathTrackingActivity.this.intent);
     }
 
     private void storeImage(File image) {
