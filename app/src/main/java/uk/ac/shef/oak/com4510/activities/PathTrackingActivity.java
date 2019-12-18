@@ -254,6 +254,7 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         });
     }
 
+    @RequiresApi(api = Build.VERSION_CODES.O)
     @SuppressLint("MissingPermission")
     @Override
     public void onRequestPermissionsResult(int requestCode,
@@ -263,13 +264,13 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-
                     if (mMap != null) {
                         mMap.setMyLocationEnabled(true);
                     }
+                    startLocationUpdates(getApplicationContext());
+
                 } else {
                     finishTrackingPath();
 
