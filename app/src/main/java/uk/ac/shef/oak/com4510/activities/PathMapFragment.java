@@ -73,11 +73,6 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
                 populateMap(photos);
             }
         });
-
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
     }
 
     private void populateMap(List<PathPhoto> photos) {
@@ -85,10 +80,10 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
             String[] coordsString = photo.getCoordinates().split(",");
             double lat = Double.parseDouble(coordsString[0]);
             double lng = Double.parseDouble(coordsString[1]);
-            Log.d("debug", photo.getCoordinates());
-            LatLng sydney = new LatLng(lat, lng);
-            mMap.addMarker(new MarkerOptions().position(sydney));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+
+            LatLng position = new LatLng(lat, lng);
+            mMap.addMarker(new MarkerOptions().position(position));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
         }
     }
 
