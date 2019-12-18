@@ -10,14 +10,10 @@ import android.widget.Button;
 
 import androidx.annotation.NonNull;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import uk.ac.shef.oak.com4510.R;
-import uk.ac.shef.oak.com4510.database.AppDatabase;
-import uk.ac.shef.oak.com4510.model.Path;
-import uk.ac.shef.oak.com4510.model.PathPhoto;
-import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -71,7 +67,7 @@ public class HomeActivity extends BaseActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         Button btn = findViewById(R.id.continueTracking);
 
-        if (isLocationServiceRunnint()) {
+        if (isLocationServiceRunning()) {
             btn.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
         } else {
@@ -156,7 +152,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    private boolean isLocationServiceRunnint() {
+    private boolean isLocationServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (service.service.getClassName().equals(LocationService.class.getName())) {

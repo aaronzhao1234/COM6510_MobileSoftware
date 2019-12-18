@@ -42,6 +42,10 @@ public class GalleryViewModel extends AndroidViewModel {
         return repository.getPathPhotosByPathId(pathId);
     }
 
+    public void removePath(Path path) {
+        repository.remove(path);
+    }
+
     public void insertPhoto(PathPhoto pathPhoto, GalleryRepository.InsertCallback callback) {
         repository.insert(pathPhoto, callback);
     }

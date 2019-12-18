@@ -21,7 +21,7 @@ public interface PathPhotoDao extends DaoInterface {
     @Query("SELECT * FROM pathphoto WHERE id = (:pathPhotoId)")
     LiveData<List<PathPhoto>> getById(int pathPhotoId);
 
-    @Query("SELECT * FROM pathphoto WHERE path_id = (:pathId)")
+    @Query("SELECT * FROM pathphoto WHERE path_id = (:pathId) ORDER BY id DESC")
     LiveData<List<PathPhoto>> getAllByPathId(int pathId);
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)

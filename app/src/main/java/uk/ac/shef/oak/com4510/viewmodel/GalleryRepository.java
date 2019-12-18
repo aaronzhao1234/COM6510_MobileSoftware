@@ -53,6 +53,10 @@ public class GalleryRepository {
         new InsertTaskAsync(pathDao, callback).execute((EntityInterface) path);
     }
 
+    public void remove(Path path) {
+        pathDao.delete(path);
+    }
+
     public LiveData<List<PathPhoto>> getPathPhotosByPathId(int pathId) {
         return pathPhotoDao.getAllByPathId(pathId);
     }

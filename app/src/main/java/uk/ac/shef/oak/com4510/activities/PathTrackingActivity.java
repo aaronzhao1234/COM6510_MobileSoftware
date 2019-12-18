@@ -51,6 +51,7 @@ import java.text.DateFormat;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
@@ -84,6 +85,8 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         super.onCreate(savedInstanceState);
         setContentView(R.layout.path_tracking_activity);
 
+        checkPermission();
+
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
         SharedPreferences prefs = getApplicationContext().getSharedPreferences("PathTracking", MODE_PRIVATE);
@@ -95,7 +98,9 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
             galleryViewModel.getPathById(id).observe(this, new Observer<List<Path>>() {
                 @Override
                 public void onChanged(List<Path> paths) {
-                    trackingPath = paths.get(0);
+                    if (paths.size() > 0) {
+                        trackingPath = paths.get(0);
+                    }
                 }
             });
         }
@@ -123,7 +128,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
 
-        checkPermission();
         initEasyImage();
         startLocationUpdates(getApplicationContext());
 
@@ -142,6 +146,38 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 EasyImage.openGallery(PathTrackingActivity.this, 0);
             }
         });
+
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setTitle("Path Tracking");
+
+        // Set back button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        Intent intent = new Intent(this, HomeActivity.class);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+
+        return true;
+    }
+
+    @Override
+    protected void onResume() {
+        super.onResume();
+
+        barometer.startSensingPressure();
+        thermometer.startSensingTempertaure();
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+
+        barometer.stopBarometer();
+        thermometer.stopThermometer();
     }
 
     @Override
@@ -160,18 +196,14 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
             // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
 
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
-            }
+            // No explanation needed, we can request the permission.
+            ActivityCompat.requestPermissions(this, new String[]{
+                    Manifest.permission.CAMERA,
+                    Manifest.permission.ACCESS_FINE_LOCATION,
+                    Manifest.permission.READ_EXTERNAL_STORAGE,
+                    Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                    Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
             return;
         }
     }
@@ -186,7 +218,10 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
-        mMap.setMyLocationEnabled(true);
+
+        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+            mMap.setMyLocationEnabled(true);
+        }
     }
 
     @Override
@@ -233,7 +268,19 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
 
+                    if (mMap != null) {
+                        mMap.setMyLocationEnabled(true);
+                    }
                 } else {
+                    finishTrackingPath();
+
+                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            galleryViewModel.removePath(trackingPath);
+                        }
+                    });
+
                     finish();
                     // permission denied, boo! Disable the
                     // functionality that depends on this permission.
@@ -268,20 +315,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         intent.setData(contentUri);
         this.sendBroadcast(intent);
     }
-
-    /**
-     * given a list of photos, it creates a list of myElements
-     * @param //returnedPhotos
-     * @return
-     */
-/*    private List<ImageElement> getImageElements(List<File> returnedPhotos) {
-        List<ImageElement> imageElementList= new ArrayList<>();
-        for (File file: returnedPhotos){
-            ImageElement element= new ImageElement(file);
-            imageElementList.add(element);
-        }
-        return imageElementList;
-    }*/
 
     private void initEasyImage() {
         EasyImage.configuration(this)

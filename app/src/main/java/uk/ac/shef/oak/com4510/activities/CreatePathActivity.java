@@ -55,8 +55,20 @@ public class CreatePathActivity extends BaseActivity {
                 });
             }
         });
+
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setTitle("Create new path");
+
+        // Set back button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
