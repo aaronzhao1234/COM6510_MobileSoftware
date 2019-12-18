@@ -9,8 +9,14 @@ import android.view.ViewGroup;
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
+import androidx.lifecycle.Observer;
+import androidx.lifecycle.ViewModelProviders;
 
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.model.PathPhoto;
+import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
+
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
@@ -18,9 +24,12 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.List;
+
 public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
+    private GalleryViewModel galleryViewModel;
 
     public static PathMapFragment newInstance() {
         return new PathMapFragment();
@@ -40,6 +49,8 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
         SupportMapFragment mapFragment = (SupportMapFragment) getChildFragmentManager()
                 .findFragmentById(R.id.map);
         mapFragment.getMapAsync(this);
+
+        galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
     }
 
     /**
@@ -54,11 +65,31 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
-        Log.d("debug", "test");
+
+        int pathId = getArguments().getInt("pathId", -1);
+        galleryViewModel.getPhotosByPath(pathId).observe(this, new Observer<List<PathPhoto>>() {
+            @Override
+            public void onChanged(List<PathPhoto> photos) {
+                populateMap(photos);
+            }
+        });
+
         // Add a marker in Sydney and move the camera
         LatLng sydney = new LatLng(-34, 151);
         mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
         mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+    }
+
+    private void populateMap(List<PathPhoto> photos) {
+        for (PathPhoto photo: photos) {
+            String[] coordsString = photo.getCoordinates().split(",");
+            double lat = Double.parseDouble(coordsString[0]);
+            double lng = Double.parseDouble(coordsString[1]);
+            Log.d("debug", photo.getCoordinates());
+            LatLng sydney = new LatLng(lat, lng);
+            mMap.addMarker(new MarkerOptions().position(sydney));
+            mMap.moveCamera(CameraUpdateFactory.newLatLng(sydney));
+        }
     }
 
 }

@@ -45,9 +45,12 @@ public class LocationService extends Service {
                             mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
                             Log.i("MAP_bg", "new location " + mCurrentLocation.toString());
 
+                            // Save location to shared prefs for other activities to access
                             SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
                             SharedPreferences.Editor editor = prefs.edit();
-                            editor.putString("currentLocation", mCurrentLocation.toString());
+                            editor.putString("currentLocation", "" +
+                                    mCurrentLocation.getLatitude() + ',' +
+                                    mCurrentLocation.getLongitude());
                             editor.commit();
 
                             // check if the activity has not been closed in the meantime
