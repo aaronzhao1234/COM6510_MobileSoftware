@@ -1,5 +1,6 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +10,7 @@ import android.view.View;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
+import androidx.appcompat.app.AlertDialog;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -111,24 +113,40 @@ public class PathDetailsActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_delete) {
-            galleryViewModel.getPhotosByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<PathPhoto>>() {
-                @Override
-                public void onChanged(final List<PathPhoto> pathPhotos) {
-                    if (path != null) {
-                        Executors.newSingleThreadExecutor().execute(new Runnable() {
-                            @Override
-                            public void run() {
-                                for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
-                                galleryViewModel.removePath(path);
-                                finish();
-                            }
-                        });
-                    }
-                }
-            });
+            AlertDialog.Builder builder = new AlertDialog.Builder(this);
+
+            builder.setMessage("Are you sure you want to delete path \"" + path.getTitle() + "\"?")
+                    .setTitle("Delete path")
+                    .setPositiveButton("OK", new DialogInterface.OnClickListener() {
+
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            deletePath();
+                        }
+                    })
+                    .setNegativeButton("Cancel", null)
+                    .show();
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    private void deletePath() {
+        galleryViewModel.getPhotosByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<PathPhoto>>() {
+            @Override
+            public void onChanged(final List<PathPhoto> pathPhotos) {
+                if (path != null) {
+                    Executors.newSingleThreadExecutor().execute(new Runnable() {
+                        @Override
+                        public void run() {
+                            for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
+                            galleryViewModel.removePath(path);
+                            finish();
+                        }
+                    });
+                }
+            }
+        });
     }
 
     private void setDetailsFragment(final Fragment fragment) {
