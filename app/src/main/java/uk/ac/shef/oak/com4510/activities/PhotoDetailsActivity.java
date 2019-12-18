@@ -76,7 +76,8 @@ public class PhotoDetailsActivity extends BaseActivity {
             galleryViewModel.getAllPathPhotos().observe(this, new Observer<List<PathPhoto>>() {
                 @Override
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
-                    adapter = new PhotoDetailsAdapter(pathPhotos, getApplicationContext());
+                    adapter = new PhotoDetailsAdapter(getSupportFragmentManager());
+                    adapter.setPhotoList(pathPhotos);
                     viewPager.setAdapter(adapter);
                     viewPager.setCurrentItem(getIntent().getIntExtra("startPosition", 0));
                 }
@@ -85,7 +86,8 @@ public class PhotoDetailsActivity extends BaseActivity {
             galleryViewModel.getPhotosByPath(pathId).observe(this, new Observer<List<PathPhoto>>() {
                 @Override
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
-                    adapter = new PhotoDetailsAdapter(pathPhotos, getApplicationContext());
+                    adapter = new PhotoDetailsAdapter(getSupportFragmentManager());
+                    adapter.setPhotoList(pathPhotos);
                     viewPager.setAdapter(adapter);
                     viewPager.setCurrentItem(getIntent().getIntExtra("startPosition", 0));
                 }
