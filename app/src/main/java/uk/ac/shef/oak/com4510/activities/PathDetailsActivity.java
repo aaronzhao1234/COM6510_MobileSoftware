@@ -113,7 +113,7 @@ public class PathDetailsActivity extends BaseActivity {
                 Path path = paths.get(0);
 
                 TextView description = findViewById(R.id.description);
-                description.setText(path.getDescription());
+                description.setText(path.getDescription().length() > 0 ? path.getDescription() : "No description available");
 
                 assert getSupportActionBar() != null;
                 getSupportActionBar().setTitle(path.getTitle());
