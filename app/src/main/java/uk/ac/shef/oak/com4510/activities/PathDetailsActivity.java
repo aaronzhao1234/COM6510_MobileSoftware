@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.appcompat.app.AlertDialog;
@@ -113,6 +114,13 @@ public class PathDetailsActivity extends BaseActivity {
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
         if (item.getItemId() == R.id.action_delete) {
+            int pathId = (int) getSharedPreferences("PathTracking", MODE_PRIVATE).getLong("pathId", -1);
+            if (path.getEndTime() == null && pathId == path.getId()) {
+                Toast.makeText(this, "Cannot delete actively tracking path.", Toast.LENGTH_SHORT)
+                        .show();
+                return false;
+            }
+
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
 
             builder.setMessage("Are you sure you want to delete path \"" + path.getTitle() + "\"?")
