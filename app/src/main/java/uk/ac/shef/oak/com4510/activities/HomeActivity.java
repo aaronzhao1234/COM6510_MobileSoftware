@@ -16,14 +16,10 @@ import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProviders;
 import androidx.recyclerview.widget.RecyclerView;
 
 import uk.ac.shef.oak.com4510.R;
-import uk.ac.shef.oak.com4510.database.AppDatabase;
-import uk.ac.shef.oak.com4510.model.Path;
-import uk.ac.shef.oak.com4510.model.PathPhoto;
-import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
+
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
@@ -31,7 +27,6 @@ public class HomeActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;
     private PathListFragment pathListFragment;
-    private static final int PERMISSION_STATUS = 1234;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,8 +64,6 @@ public class HomeActivity extends BaseActivity {
 
         // set initial gallery fragment to activity
         setGalleryFragment(photosFragment);
-
-        checkPermission();
     }
 
     @SuppressLint("RestrictedApi")
@@ -81,7 +74,7 @@ public class HomeActivity extends BaseActivity {
         FloatingActionButton fab = findViewById(R.id.fab);
         Button btn = findViewById(R.id.continueTracking);
 
-        if (isLocationServiceRunnint()) {
+        if (isLocationServiceRunning()) {
             btn.setVisibility(View.VISIBLE);
             fab.setVisibility(View.GONE);
         } else {
@@ -166,7 +159,7 @@ public class HomeActivity extends BaseActivity {
         }
     }
 
-    private boolean isLocationServiceRunnint() {
+    private boolean isLocationServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
             if (service.service.getClassName().equals(LocationService.class.getName())) {
@@ -174,29 +167,6 @@ public class HomeActivity extends BaseActivity {
             }
         }
         return false;
-    }
-
-    private void checkPermission(){
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
-                || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
-            if (ActivityCompat.shouldShowRequestPermissionRationale(this,
-                    Manifest.permission.CAMERA)) {
-
-            } else {
-                // No explanation needed, we can request the permission.
-                ActivityCompat.requestPermissions(this, new String[]{
-                        Manifest.permission.CAMERA,
-                        Manifest.permission.ACCESS_FINE_LOCATION,
-                        Manifest.permission.READ_EXTERNAL_STORAGE,
-                        Manifest.permission.WRITE_EXTERNAL_STORAGE,
-                        Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
-            }
-            return;
-        }
     }
 
 }

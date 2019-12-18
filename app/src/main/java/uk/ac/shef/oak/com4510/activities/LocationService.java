@@ -69,7 +69,8 @@ public class LocationService extends IntentService {
         }
 
         Intent intent = new Intent(this, PathTrackingActivity.class);
-        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, PendingIntent.FLAG_NO_CREATE);
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
         Notification notification = mBuilder
                 .setContentIntent(pendingIntent)
@@ -86,10 +87,15 @@ public class LocationService extends IntentService {
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
         //code running in the service
-        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null /* Looper */);
+        mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
         return Service.START_STICKY;
     }
 
+    @Override
+    public void onDestroy() {
+        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
+        super.onDestroy();
+    }
 
     @Override
     public IBinder onBind(Intent intent) {
@@ -136,9 +142,4 @@ public class LocationService extends IntentService {
         manager.createNotificationChannel(chan);
     }
 
-    @Override
-    public void onDestroy() {
-        super.onDestroy();
-        mFusedLocationClient.removeLocationUpdates(mLocationCallback);
-    }
 }
