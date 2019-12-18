@@ -52,23 +52,32 @@ public class PathListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
+        buildGallery();
+    }
 
+    @Override
+    public void onResume() {
+        super.onResume();
+        buildGallery();
+    }
+
+    private void buildGallery() {
         if (adapter == null) {
             adapter = new PathsAdapter(getContext(), new ArrayList<Path>());
             adapter.setHasStableIds(true);
         }
 
-        pathsRecycler.setAdapter(adapter);
-
         if (galleryViewModel == null) {
             galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
-            galleryViewModel.getAllPaths().observe(this, new Observer<List<Path>>() {
-                @Override
-                public void onChanged(@Nullable List<Path> paths) {
-                    adapter.setPathList(paths);
-                }
-            });
         }
+
+        galleryViewModel.getAllPaths().observe(this, new Observer<List<Path>>() {
+            @Override
+            public void onChanged(@Nullable List<Path> paths) {
+                pathsRecycler.setAdapter(adapter);
+                adapter.setPathList(paths);
+            }
+        });
     }
 
 }

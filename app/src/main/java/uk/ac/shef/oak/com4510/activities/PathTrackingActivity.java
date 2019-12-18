@@ -342,6 +342,17 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         );
 
         galleryViewModel.insertPhoto(photo, null);
+        addMarker(photo);
+    }
+
+    private void addMarker(PathPhoto photo) {
+        String[] coordsString = photo.getCoordinates().split(",");
+        double lat = Double.parseDouble(coordsString[0]);
+        double lng = Double.parseDouble(coordsString[1]);
+
+        LatLng position = new LatLng(lat, lng);
+        mMap.addMarker(new MarkerOptions().position(position));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 1));
     }
 
 }

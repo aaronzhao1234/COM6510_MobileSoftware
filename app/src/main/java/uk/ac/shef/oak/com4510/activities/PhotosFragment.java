@@ -70,8 +70,6 @@ public class PhotosFragment extends Fragment {
             adapter.setHasStableIds(true);
         }
 
-        photosRecycler.setAdapter(adapter);
-
         if (galleryViewModel == null) {
             galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
         }
@@ -81,6 +79,7 @@ public class PhotosFragment extends Fragment {
             galleryViewModel.getAllPathPhotos().observe(this, new Observer<List<PathPhoto>>() {
                 @Override
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
+                    photosRecycler.setAdapter(adapter);
                     adapter.setPhotoList(pathPhotos, pathId);
                 }
             });
@@ -88,6 +87,7 @@ public class PhotosFragment extends Fragment {
             galleryViewModel.getPhotosByPath(pathId).observe(this, new Observer<List<PathPhoto>>() {
                 @Override
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
+                    photosRecycler.setAdapter(adapter);
                     adapter.setPhotoList(pathPhotos, pathId);
                 }
             });
