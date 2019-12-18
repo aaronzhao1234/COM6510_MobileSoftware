@@ -1,11 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
-<LinearLayout
-    xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:background="#fff"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
     android:orientation="vertical"
-    android:animateLayoutChanges="true" >
+    android:animateLayoutChanges="true">
 
     <LinearLayout
         android:id="@+id/pathHeading"
@@ -44,9 +44,27 @@
 
     </LinearLayout>
 
-    <androidx.recyclerview.widget.RecyclerView
-        android:id="@+id/gallery_recycler"
+    <RelativeLayout
+        android:id="@+id/gallery_container"
         android:layout_width="match_parent"
-        android:layout_height="@dimen/gallery_path_height" />
+        android:layout_height="wrap_content" >
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/gallery_recycler"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/gallery_path_height"
+            app:layout_constraintTop_toBottomOf="parent"/>
+
+        <TextView
+            android:id="@+id/noPhoto"
+            android:layout_width="match_parent"
+            android:layout_height="@dimen/gallery_path_height"
+            android:layout_centerInParent="true"
+            android:gravity="center"
+            android:text="No image available"
+            android:visibility="gone"
+            app:layout_constraintTop_toBottomOf="parent"  />
+
+    </RelativeLayout>
 
 </LinearLayout>

@@ -51,6 +51,7 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
                 new Observer<List<PathPhoto>>() {
                     @Override
                     public void onChanged(List<PathPhoto> pathPhotos) {
+                        if (pathPhotos.size() == 0) holder.empty.setVisibility(View.VISIBLE);
                         holder.adapter.setPhotoList(pathPhotos, pathList.get(position).getId());
                     }
                 });
@@ -60,10 +61,10 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
 
         if (collapseAction) {
             holder.show.setText(">");
-            collapse(holder.gallery);
+            collapse(holder);
         } else {
             holder.show.setText(R.string.show_more_text);
-            expand(holder.gallery);
+            expand(holder);
         }
 
         holder.pathHeading.setOnClickListener(new View.OnClickListener() {
@@ -97,19 +98,23 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
         // each data item is just a string in this case
         RecyclerView gallery;
         PhotosAdapter adapter;
+
         View pathHeading;
-        TextView show;
+        View galleryContanier;
 
         TextView titleText;
         TextView dateText;
+        TextView empty;
+        TextView show;
 
         public PathViewHolder(View v) {
             super(v);
 
+            empty = v.findViewById(R.id.noPhoto);
             pathHeading = v.findViewById(R.id.pathHeading);
             show = v.findViewById(R.id.show);
             gallery = v.findViewById(R.id.gallery_recycler);
-            gallery.setHasFixedSize(false);
+            galleryContanier = v.findViewById(R.id.gallery_container);
 
             titleText = v.findViewById(R.id.titleText);
             dateText = v.findViewById(R.id.dateText);
@@ -136,12 +141,12 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
         return new PathViewHolder(v);
     }
 
-    private void collapse(View v) {
-        v.setVisibility(View.GONE);
+    private void collapse(PathViewHolder holder) {
+        holder.galleryContanier.setVisibility(View.GONE);
     }
 
-    private void expand(View v) {
-        v.setVisibility(View.VISIBLE);
+    private void expand(PathViewHolder holder) {
+        holder.galleryContanier.setVisibility(View.VISIBLE);
     }
 
     public void setCollapsed(boolean collapseAction) {
