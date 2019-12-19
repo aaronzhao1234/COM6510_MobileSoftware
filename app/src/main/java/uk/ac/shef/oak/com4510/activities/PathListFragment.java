@@ -34,7 +34,7 @@ public class PathListFragment extends Fragment {
 
     // recycler view handlers
     private RecyclerView pathsRecycler;
-    private PathsAdapter adapter;
+    PathsAdapter adapter;
 
     public static PathListFragment newInstance() {
         return new PathListFragment();
