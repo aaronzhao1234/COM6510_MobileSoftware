@@ -153,6 +153,9 @@ public class PathDetailsActivity extends BaseActivity {
                                 for (LocationTracking location: locations) galleryViewModel.removeLocation(location);
                                 for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
                                 galleryViewModel.removePath(path);
+
+                                Toast.makeText(PathDetailsActivity.this, "Path removed successfully.", Toast.LENGTH_SHORT).show();
+
                                 finish();
                             }
                         });

@@ -1,5 +1,7 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.Manifest;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
@@ -9,6 +11,7 @@ import android.view.ViewGroup;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
+import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
@@ -40,6 +43,10 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
     public static PathMapFragment newInstance() {
         return new PathMapFragment();
+    }
+
+    public GoogleMap getmMap() {
+        return mMap;
     }
 
     @Override
@@ -93,7 +100,9 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
                 }
             });
         } else {
-            mMap.setMyLocationEnabled(true);
+            if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
+                mMap.setMyLocationEnabled(true);
+            }
 
             galleryViewModel.getLocationsByPath(pathId).observe(this, new Observer<List<LocationTracking>>() {
                 @Override

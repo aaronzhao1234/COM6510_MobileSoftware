@@ -17,6 +17,7 @@ import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.RequiresApi;
@@ -74,7 +75,7 @@ public class PathTrackingActivity extends BaseActivity {
     private Path trackingPath;
 
     private Intent intent;
-
+    private PathMapFragment pathMapFragment;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
@@ -118,14 +119,14 @@ public class PathTrackingActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
-        PathMapFragment fragment = PathMapFragment.newInstance();
+        pathMapFragment = PathMapFragment.newInstance();
         Bundle args = new Bundle();
         args.putInt("pathId", id);
-        fragment.setArguments(args);
+        pathMapFragment.setArguments(args);
 
         getSupportFragmentManager().beginTransaction()
                 .setCustomAnimations(R.anim.fade_in_short, R.anim.fade_out_short)
-                .replace(R.id.fragment_container, fragment)
+                .replace(R.id.fragment_container, pathMapFragment)
                 .commit();
     }
 
@@ -231,7 +232,9 @@ public class PathTrackingActivity extends BaseActivity {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
                     startLocationUpdates(getApplicationContext());
-
+                    if (pathMapFragment.getmMap() != null) {
+                        pathMapFragment.getmMap().setMyLocationEnabled(true);
+                    }
                 } else {
                     finishTrackingPath();
 
@@ -241,6 +244,8 @@ public class PathTrackingActivity extends BaseActivity {
                             galleryViewModel.removePath(trackingPath);
                         }
                     });
+
+                    Toast.makeText(this, "Unable to create path without permissions.", Toast.LENGTH_SHORT).show();
 
                     finish();
                     // permission denied, boo! Disable the
@@ -333,6 +338,7 @@ public class PathTrackingActivity extends BaseActivity {
         );
 
         galleryViewModel.insertPhoto(photo, null);
+        Toast.makeText(this, "Photo added to path.", Toast.LENGTH_SHORT).show();
     }
 
 }
