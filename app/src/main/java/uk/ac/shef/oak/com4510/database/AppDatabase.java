@@ -15,7 +15,7 @@ import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.Converters;
 
-@Database(entities = {Path.class, PathPhoto.class, LocationTracking.class}, version = 15, exportSchema = false)
+@Database(entities = {Path.class, PathPhoto.class, LocationTracking.class}, version = 16, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 

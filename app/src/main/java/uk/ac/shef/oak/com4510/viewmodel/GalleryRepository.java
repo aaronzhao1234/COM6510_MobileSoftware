@@ -6,19 +6,23 @@ import android.os.AsyncTask;
 import androidx.lifecycle.LiveData;
 
 import uk.ac.shef.oak.com4510.database.AppDatabase;
+import uk.ac.shef.oak.com4510.database.LocationTrackingDao;
 import uk.ac.shef.oak.com4510.database.PathDao;
 import uk.ac.shef.oak.com4510.database.PathPhotoDao;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.DaoInterface;
 import uk.ac.shef.oak.com4510.utils.EntityInterface;
 
 import java.util.List;
+import java.util.concurrent.Executors;
 
 public class GalleryRepository {
 
     private PathDao pathDao;
     private PathPhotoDao pathPhotoDao;
+    private LocationTrackingDao locationDao;
 
     private LiveData<List<Path>> allPaths;
     private LiveData<List<PathPhoto>> allPathPhotos;
@@ -28,6 +32,7 @@ public class GalleryRepository {
 
         pathDao = db.pathDao();
         pathPhotoDao = db.pathPhotoDao();
+        locationDao = db.locationDao();
 
         allPaths = pathDao.getAll();
         allPathPhotos = pathPhotoDao.getAll();
@@ -45,8 +50,16 @@ public class GalleryRepository {
         return pathDao.getById(id);
     }
 
+    public LiveData<PathPhoto> getPathPhotoById(int id) {
+        return pathPhotoDao.getById(id);
+    }
+
     public LiveData<List<PathPhoto>> getAllPathPhotos() {
         return allPathPhotos;
+    }
+
+    public LiveData<List<LocationTracking>> getAllLocationByPathId(int pathId) {
+        return locationDao.getAllByPathId(pathId);
     }
 
     public void insert(final PathPhoto pathPhoto, InsertCallback callback) {
@@ -57,6 +70,15 @@ public class GalleryRepository {
         new InsertTaskAsync(pathDao, callback).execute((EntityInterface) path);
     }
 
+    public void insert(final LocationTracking location) {
+        Executors.newSingleThreadExecutor().execute(new Runnable() {
+            @Override
+            public void run() {
+                locationDao.addLocation(location);
+            }
+        });
+    }
+
     public void remove(Path path) {
         pathDao.delete(path);
     }
@@ -64,6 +86,11 @@ public class GalleryRepository {
     public void remove(PathPhoto pathPhoto) {
         pathPhotoDao.delete(pathPhoto);
     }
+
+    public void remove(LocationTracking location) {
+        locationDao.delete(location);
+    }
+
 
     public LiveData<List<PathPhoto>> getPathPhotosByPathId(int pathId) {
         return pathPhotoDao.getAllByPathId(pathId);

@@ -17,6 +17,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
@@ -143,16 +144,20 @@ public class PathDetailsActivity extends BaseActivity {
         galleryViewModel.getPhotosByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<PathPhoto>>() {
             @Override
             public void onChanged(final List<PathPhoto> pathPhotos) {
-                if (path != null) {
-                    Executors.newSingleThreadExecutor().execute(new Runnable() {
-                        @Override
-                        public void run() {
-                            for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
-                            galleryViewModel.removePath(path);
-                            finish();
-                        }
-                    });
-                }
+                galleryViewModel.getLocationsByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<LocationTracking>>() {
+                    @Override
+                    public void onChanged(final List<LocationTracking> locations) {
+                        Executors.newSingleThreadExecutor().execute(new Runnable() {
+                            @Override
+                            public void run() {
+                                for (LocationTracking location: locations) galleryViewModel.removeLocation(location);
+                                for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
+                                galleryViewModel.removePath(path);
+                                finish();
+                            }
+                        });
+                    }
+                });
             }
         });
     }

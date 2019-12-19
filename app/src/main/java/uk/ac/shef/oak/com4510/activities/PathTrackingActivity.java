@@ -56,77 +56,47 @@ import java.util.concurrent.Executors;
 import pl.aprilapps.easyphotopicker.DefaultCallback;
 import pl.aprilapps.easyphotopicker.EasyImage;
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.Barometer;
 import uk.ac.shef.oak.com4510.utils.Thermometer;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
-public class PathTrackingActivity extends BaseActivity implements OnMapReadyCallback {
+public class PathTrackingActivity extends BaseActivity {
 
     public static final int PERMISSION_STATUS = 1234;
 
     private Barometer barometer;
     private Thermometer thermometer;
-    private static AppCompatActivity activity;
-
-    private static GoogleMap mMap;
-
-    private Button stopButton;
 
     private GalleryViewModel galleryViewModel;
     private Path trackingPath;
 
     private Intent intent;
 
-    public static AppCompatActivity getActivity() {
-        return activity;
-    }
-
-    public static void setActivity(AppCompatActivity activity) {
-        PathTrackingActivity.activity = activity;
-    }
-
-    public static GoogleMap getMap() {
-        return mMap;
-    }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.path_tracking_activity);
-        setActivity(this);
 
         checkPermission();
 
-        galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
-
-        SharedPreferences prefs = getApplicationContext().getSharedPreferences("PathTracking", MODE_PRIVATE);
-        int id = (int) prefs.getLong("pathId", -1);
-
+        final int id = (int) getSharedPreferences("PathTracking", MODE_PRIVATE).getLong("pathId", -1);
         if (id == -1) {
             finish();
-        } else {
-            galleryViewModel.getPathById(id).observe(this, new Observer<List<Path>>() {
-                @Override
-                public void onChanged(List<Path> paths) {
-                    if (paths.size() > 0) {
-                        trackingPath = paths.get(0);
-                    }
-                }
-            });
+            return;
         }
 
-        stopButton = (Button) findViewById(R.id.StopButton_id);
-        stopButton.setOnClickListener(new View.OnClickListener() {
+        galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
+        galleryViewModel.getPathById(id).observe(this, new Observer<List<Path>>() {
             @Override
-            public void onClick(View v) {
-                finishTrackingPath();
-
-                Intent intent= new Intent(PathTrackingActivity.this, HomeActivity.class);
-                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
-                startActivity(intent);
+            public void onChanged(List<Path> paths) {
+                if (paths.size() > 0) {
+                    trackingPath = paths.get(0);
+                }
             }
         });
 
@@ -136,30 +106,10 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         thermometer = new Thermometer(this);
         thermometer.startSensingTempertaure();
 
-        // Obtain the SupportMapFragment and get notified when the map is ready to be used.
-        SupportMapFragment mapFragment = (SupportMapFragment) getSupportFragmentManager()
-                .findFragmentById(R.id.map);
-        mapFragment.getMapAsync(this);
-
         initEasyImage();
 
         startLocationUpdates(getApplicationContext());
-
-        FloatingActionButton fabCamera = (FloatingActionButton) findViewById(R.id.fab_camera);
-        fabCamera.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EasyImage.openCamera(PathTrackingActivity.this, 0);
-            }
-        });
-
-        FloatingActionButton fabGallery = (FloatingActionButton) findViewById(R.id.fab_gallery);
-        fabGallery.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EasyImage.openGallery(PathTrackingActivity.this, 0);
-            }
-        });
+        setButtonListeners();
 
         assert getSupportActionBar() != null;
         getSupportActionBar().setTitle("Path Tracking");
@@ -167,6 +117,16 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         // Set back button
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
+
+        PathMapFragment fragment = PathMapFragment.newInstance();
+        Bundle args = new Bundle();
+        args.putInt("pathId", id);
+        fragment.setArguments(args);
+
+        getSupportFragmentManager().beginTransaction()
+                .setCustomAnimations(R.anim.fade_in_short, R.anim.fade_out_short)
+                .replace(R.id.fragment_container, fragment)
+                .commit();
     }
 
     @Override
@@ -228,16 +188,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
     }
 
     @Override
-    public void onMapReady(GoogleMap googleMap) {
-        mMap = googleMap;
-        mMap.getUiSettings().setZoomControlsEnabled(true);
-
-        if (ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
-            mMap.setMyLocationEnabled(true);
-        }
-    }
-
-    @Override
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
@@ -280,9 +230,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
                     // permission was granted, yay! Do the
                     // contacts-related task you need to do.
-                    if (mMap != null) {
-                        mMap.setMyLocationEnabled(true);
-                    }
                     startLocationUpdates(getApplicationContext());
 
                 } else {
@@ -302,6 +249,36 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
                 return;
             }
         }
+    }
+
+    private void setButtonListeners() {
+        FloatingActionButton fabCamera = findViewById(R.id.fab_camera);
+        fabCamera.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EasyImage.openCamera(PathTrackingActivity.this, 0);
+            }
+        });
+
+        FloatingActionButton fabGallery = findViewById(R.id.fab_gallery);
+        fabGallery.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EasyImage.openGallery(PathTrackingActivity.this, 0);
+            }
+        });
+
+        Button stopButton = findViewById(R.id.StopButton_id);
+        stopButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                finishTrackingPath();
+
+                Intent intent= new Intent(PathTrackingActivity.this, HomeActivity.class);
+                intent.addFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_NEW_TASK);
+                startActivity(intent);
+            }
+        });
     }
 
     /**
@@ -356,17 +333,6 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
         );
 
         galleryViewModel.insertPhoto(photo, null);
-        addMarker(photo);
-    }
-
-    private void addMarker(PathPhoto photo) {
-        String[] coordsString = photo.getCoordinates().split(",");
-        double lat = Double.parseDouble(coordsString[0]);
-        double lng = Double.parseDouble(coordsString[1]);
-
-        LatLng position = new LatLng(lat, lng);
-        mMap.addMarker(new MarkerOptions().position(position));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position, 1));
     }
 
 }

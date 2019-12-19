@@ -15,7 +15,6 @@ import androidx.lifecycle.ViewModelProviders;
 
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.LocationTracking;
-import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
@@ -23,20 +22,21 @@ import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
 import com.google.android.gms.maps.OnMapReadyCallback;
 import com.google.android.gms.maps.SupportMapFragment;
+import com.google.android.gms.maps.model.JointType;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+import com.google.android.gms.maps.model.Polyline;
+import com.google.android.gms.maps.model.PolylineOptions;
+import com.google.android.gms.maps.model.RoundCap;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private GalleryViewModel galleryViewModel;
-    private ArrayList<Double> mLatitude = new ArrayList<Double>();
-    private ArrayList<Double> mLongitude = new ArrayList<Double>();
-    private ArrayList<String> mTime = new ArrayList<String>();
-    private int locationNumber;
 
     public static PathMapFragment newInstance() {
         return new PathMapFragment();
@@ -72,16 +72,44 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        mMap.getUiSettings().setZoomControlsEnabled(true);
 
-        int pathId = getArguments().getInt("pathId", -1);
-        galleryViewModel.getPhotosByPath(pathId).observe(this, new Observer<List<PathPhoto>>() {
-            @Override
-            public void onChanged(List<PathPhoto> photos) {
-                populateMap(photos);
-            }
-        });
+        final int pathId = getArguments().getInt("pathId", -1);
+        final int photoId = getArguments().getInt("photoId", -1);
 
-        new ReadLocationAsync().execute();
+        if (photoId != -1) {
+            galleryViewModel.getLocationsByPath(pathId).observe(this, new Observer<List<LocationTracking>>() {
+                @Override
+                public void onChanged(final List<LocationTracking> locationTrackings) {
+                    galleryViewModel.getPhotoById(photoId).observe(PathMapFragment.this, new Observer<PathPhoto>() {
+                        @Override
+                        public void onChanged(PathPhoto pathPhoto) {
+                            mMap.clear();
+
+                            populateWithLocation(locationTrackings);
+                            populateMap(Collections.singletonList(pathPhoto));
+                        }
+                    });
+                }
+            });
+        } else {
+            mMap.setMyLocationEnabled(true);
+
+            galleryViewModel.getLocationsByPath(pathId).observe(this, new Observer<List<LocationTracking>>() {
+                @Override
+                public void onChanged(final List<LocationTracking> locationTrackings) {
+                    galleryViewModel.getPhotosByPath(pathId).observe(PathMapFragment.this, new Observer<List<PathPhoto>>() {
+                        @Override
+                        public void onChanged(List<PathPhoto> pathPhotos) {
+                            mMap.clear();
+
+                            populateWithLocation(locationTrackings);
+                            populateMap(pathPhotos);
+                        }
+                    });
+                }
+            });
+        }
     }
 
     private void populateMap(List<PathPhoto> photos) {
@@ -92,43 +120,21 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
             LatLng position = new LatLng(lat, lng);
             mMap.addMarker(new MarkerOptions().position(position));
-            mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,14.0f));
         }
     }
 
+    private void populateWithLocation(List<LocationTracking> locations) {
+        for (LocationTracking location: locations) {
+            LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
 
-    PathDetailsActivity pathDetailsActivity = new PathDetailsActivity();
+            Polyline polyline = mMap.addPolyline(new PolylineOptions().add(position));
+            polyline.setEndCap(new RoundCap());
+            polyline.setWidth(12);
+            polyline.setColor(0xff000000);
+            polyline.setJointType(JointType.ROUND);
 
-    class ReadLocationAsync extends AsyncTask<Void, Void, String> {
-
-        List<LocationTracking> locationTrackings;
-        ReadLocationAsync(){}
-
-        @Override
-        protected String doInBackground(Void... params) {
-
-            locationTrackings = HomeActivity.appDatabase.locationDao().getLocationByName("name");
-            locationNumber = 0;
-            for (LocationTracking locations : locationTrackings){
-                mTime.add(locations.getTime());
-                mLatitude.add(locations.getLatitude());
-                mLongitude.add(locations.getLongitude());
-                locationNumber++;
-            }
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(String s) {
-            super.onPostExecute(s);
-            int i;
-            for (i=0; i<locationNumber; i++){
-                LatLng locationInPath = new LatLng(mLatitude.get(i),mLongitude.get(i));
-                mMap.addMarker(new MarkerOptions().position(locationInPath).title(mTime.get(i)));
-            }
-            LatLng startingPoint = new LatLng(mLatitude.get(0),mLongitude.get(0));
-            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startingPoint,14.0f));
-            mMap.getUiSettings().setZoomControlsEnabled(true);
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,14.0f));
         }
     }
 

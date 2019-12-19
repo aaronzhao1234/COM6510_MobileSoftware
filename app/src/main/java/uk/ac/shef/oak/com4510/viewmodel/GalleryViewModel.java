@@ -6,6 +6,7 @@ import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
 import androidx.lifecycle.Observer;
 
+import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 
@@ -31,6 +32,10 @@ public class GalleryViewModel extends AndroidViewModel {
         return repository.getPathsByTitle(title);
     }
 
+    public LiveData<List<LocationTracking>> getLocationsByPath(int pathId) {
+        return repository.getAllLocationByPathId(pathId);
+    }
+
     public LiveData<List<Path>> getAllPaths() {
         return allPaths;
     }
@@ -39,12 +44,12 @@ public class GalleryViewModel extends AndroidViewModel {
         return repository.getPathById(id);
     }
 
-    public LiveData<List<PathPhoto>> getAllPathPhotos() {
-        return allPathPhotos;
+    public LiveData<PathPhoto> getPhotoById(int id) {
+        return repository.getPathPhotoById(id);
     }
 
-    public LiveData<List<PathPhoto>> GetPhotosByPath(int pathId) {
-        return repository.getPathPhotosByPathId(pathId);
+    public LiveData<List<PathPhoto>> getAllPathPhotos() {
+        return allPathPhotos;
     }
 
     public void removePhoto(PathPhoto pathPhoto) {
@@ -55,6 +60,10 @@ public class GalleryViewModel extends AndroidViewModel {
         repository.remove(path);
     }
 
+    public void removeLocation(LocationTracking location) {
+        repository.remove(location);
+    }
+
     public void insertPhoto(PathPhoto pathPhoto, GalleryRepository.InsertCallback callback) {
         repository.insert(pathPhoto, callback);
     }
@@ -63,9 +72,12 @@ public class GalleryViewModel extends AndroidViewModel {
         repository.insert(path, callback);
     }
 
-
+    public void insertLocationTracking(LocationTracking locationTracking) {
+        repository.insert(locationTracking);
+    }
 
     public LiveData<List<PathPhoto>> getPhotosByPath(int pathId) {
         return repository.getPathPhotosByPathId(pathId);
     }
+
 }

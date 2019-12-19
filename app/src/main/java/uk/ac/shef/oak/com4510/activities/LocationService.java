@@ -19,6 +19,7 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
+import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
@@ -35,6 +36,7 @@ import java.util.Date;
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -46,8 +48,7 @@ public class LocationService extends IntentService {
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
 
-    private Location mCurrentLocation;
-    private String mLastUpdateTime;
+    private GalleryViewModel galleryViewModel;
 
     /**
      * Creates an IntentService.  Invoked by your subclass's constructor.
@@ -86,6 +87,8 @@ public class LocationService extends IntentService {
         mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
+
+        galleryViewModel = new GalleryViewModel(getApplication());
     }
 
     @Override
@@ -115,8 +118,8 @@ public class LocationService extends IntentService {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
-            mCurrentLocation = locationResult.getLastLocation();
-            mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+            Location mCurrentLocation = locationResult.getLastLocation();
+            String mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
             // Save location to shared prefs for other activities to access
             SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
@@ -126,26 +129,7 @@ public class LocationService extends IntentService {
             editor.commit();
 
             Log.i("MAP", "new location " + mCurrentLocation.toString());
-
-
-            LocationTracking locationTracking = new LocationTracking();
-            //====need to change==================//
-            locationTracking.setPathName("name");
-            //====================================//
-            locationTracking.setTime(mLastUpdateTime);
-            locationTracking.setLatitude(mCurrentLocation.getLatitude());
-            locationTracking.setLongitude(mCurrentLocation.getLongitude());
-            new AddLocationAsync(locationTracking).execute();
-
-            PathTrackingActivity.getActivity().runOnUiThread(new Runnable(){
-
-                @Override
-                public void run() {
-                    PathTrackingActivity.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())));
-                    PathTrackingActivity.getMap().addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
-                            .title(mLastUpdateTime));
-                }
-            });
+            storeLocation(mCurrentLocation, mLastUpdateTime);
         }
     };
 
@@ -166,24 +150,19 @@ public class LocationService extends IntentService {
         manager.createNotificationChannel(chan);
     }
 
-    class AddLocationAsync extends AsyncTask<Void, Void, Void> {
+    private void storeLocation(final Location location, final String date) {
+        final LocationTracking locationTracking = new LocationTracking();
 
-        private LocationTracking mLocationTracking;
-        AddLocationAsync(LocationTracking locationTracking){
-            mLocationTracking = locationTracking;
-        }
+        //====================================//
+        locationTracking.setTime(date);
+        locationTracking.setLatitude(location.getLatitude());
+        locationTracking.setLongitude(location.getLongitude());
 
-        @Override
-        protected Void doInBackground(Void... params) {
-            HomeActivity.appDatabase.locationDao().addLocation(mLocationTracking);
-            return null;
-        }
+        int pathId = (int) getSharedPreferences("PathTracking", MODE_PRIVATE).getLong("pathId", -1);
+        locationTracking.setPathId(pathId);
 
-        @Override
-        protected void onPostExecute(Void aVoid) {
-            super.onPostExecute(aVoid);
-            Log.i("Async","location saved");
-        }
+        galleryViewModel.insertLocationTracking(locationTracking);
+
     }
 
 }

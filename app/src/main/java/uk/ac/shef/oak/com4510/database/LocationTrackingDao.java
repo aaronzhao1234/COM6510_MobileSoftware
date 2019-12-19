@@ -1,6 +1,8 @@
 package uk.ac.shef.oak.com4510.database;
 
+import androidx.lifecycle.LiveData;
 import androidx.room.Dao;
+import androidx.room.Delete;
 import androidx.room.Insert;
 import androidx.room.Query;
 
@@ -16,6 +18,9 @@ public interface LocationTrackingDao {
     @Query("select * from locations")
     public List<LocationTracking> getLocation();
 
-    @Query("select * from locations where pathName = (:pathName)")
-    public List<LocationTracking> getLocationByName(String pathName);
+    @Query("select * from locations where path_id = (:id)")
+    public LiveData<List<LocationTracking>> getAllByPathId(int id);
+
+    @Delete
+    void delete(LocationTracking location);
 }
