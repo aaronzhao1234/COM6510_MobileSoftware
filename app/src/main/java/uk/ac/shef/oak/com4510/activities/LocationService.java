@@ -42,12 +42,15 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class LocationService extends IntentService {
 
+    // location service ids
     private static final String CHANNEL_ID = "9876543";
     private static final int FOREGROUND_ID = 123456;
 
+    // location handlers
     private LocationRequest mLocationRequest;
     private FusedLocationProviderClient mFusedLocationClient;
 
+    // gallery view model linked to the database
     private GalleryViewModel galleryViewModel;
 
     /**
@@ -59,47 +62,54 @@ public class LocationService extends IntentService {
         super(name);
     }
 
+    /**
+     * Required constructor for service instantiation
+     */
     public LocationService() {
-        super("PathTracking");
+        this("PathTracking");
     }
-
-    PathDetailsActivity pathDetailsActivity = new PathDetailsActivity();
 
     @Override
     public void onCreate() {
         super.onCreate();
 
+        // registering channel required for Android O and above
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
             buildChannel(CHANNEL_ID);
         }
 
+        // initialize pending intent to handle clicks on the notification
         Intent intent = new Intent(this, PathTrackingActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, intent, 0);
 
+        // build notification and run service in backgorund
         Notification notification = mBuilder
                 .setContentIntent(pendingIntent)
                 .build();
         startForeground(FOREGROUND_ID, notification);
 
+        // initialize location handlers
         mLocationRequest = new LocationRequest();
         mLocationRequest.setInterval(20000);
         mLocationRequest.setFastestInterval(15000);
         mLocationRequest.setPriority(LocationRequest.PRIORITY_HIGH_ACCURACY);
         mFusedLocationClient = LocationServices.getFusedLocationProviderClient(this);
 
+        // initialize gallery view model
         galleryViewModel = new GalleryViewModel(getApplication());
     }
 
     @Override
     public int onStartCommand(final Intent intent, int flags, int startId) {
-        //code running in the service
+        // start location tracking
         mFusedLocationClient.requestLocationUpdates(mLocationRequest, mLocationCallback, null);
         return Service.START_STICKY;
     }
 
     @Override
     public void onDestroy() {
+        // stop location tracking
         mFusedLocationClient.removeLocationUpdates(mLocationCallback);
         super.onDestroy();
     }
@@ -114,12 +124,19 @@ public class LocationService extends IntentService {
 
     }
 
+    /**
+     * Location callback handler that is triggered when
+     * new location is available.
+     */
     LocationCallback mLocationCallback = new LocationCallback() {
         @Override
         public void onLocationResult(LocationResult locationResult) {
             super.onLocationResult(locationResult);
+
+            // get fps data
             Location mCurrentLocation = locationResult.getLastLocation();
             String mLastUpdateTime = DateFormat.getTimeInstance().format(new Date());
+
             // Save location to shared prefs for other activities to access
             SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
             SharedPreferences.Editor editor = prefs.edit();
@@ -129,16 +146,24 @@ public class LocationService extends IntentService {
             editor.commit();
 
             Log.i("MAP", "new location " + mCurrentLocation.toString());
+
+            // store location to the database
             storeLocation(mCurrentLocation, mLastUpdateTime);
         }
     };
 
+    // initialize notification builder and assign options
     NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(this, CHANNEL_ID)
             .setSmallIcon(R.drawable.ic_local_library_24px)
             .setContentTitle("Path Tracking")
             .setContentText("Path Tracking is running in background...")
             .setPriority(NotificationCompat.PRIORITY_LOW);
 
+    /**
+     * Required foreground service initialization step for
+     * Android ) and above.
+     * @param channelId channel id
+     */
     private void buildChannel(String channelId) {
         String channelName = "LocationService";
         NotificationChannel chan = new NotificationChannel(channelId, channelName, NotificationManager.IMPORTANCE_NONE);
@@ -150,19 +175,26 @@ public class LocationService extends IntentService {
         manager.createNotificationChannel(chan);
     }
 
+    /**
+     * Store the location into the database using the
+     * the gallery view model
+     * @param location location to be stored
+     * @param date date for the moment of tracking
+     */
     private void storeLocation(final Location location, final String date) {
         final LocationTracking locationTracking = new LocationTracking();
 
-        //====================================//
+        // set fields to location entry
         locationTracking.setTime(date);
         locationTracking.setLatitude(location.getLatitude());
         locationTracking.setLongitude(location.getLongitude());
 
+        // get active path id
         int pathId = (int) getSharedPreferences("PathTracking", MODE_PRIVATE).getLong("pathId", -1);
         locationTracking.setPathId(pathId);
 
+        // store action to database
         galleryViewModel.insertLocationTracking(locationTracking);
-
     }
 
 }

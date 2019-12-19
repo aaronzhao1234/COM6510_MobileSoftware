@@ -27,6 +27,9 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
  */
 public class CreatePathActivity extends BaseActivity {
 
+    /**
+     * View model linking to the database
+     */
     private GalleryViewModel galleryViewModel;
 
     @Override
@@ -34,8 +37,30 @@ public class CreatePathActivity extends BaseActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.create_path_activity);
 
+        // initialize gallery view model
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
+        initializeInputs();
+
+        // Set title to toolbar
+        assert getSupportActionBar() != null;
+        getSupportActionBar().setTitle("Create new path");
+
+        // Set back button
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setDisplayShowHomeEnabled(true);
+    }
+
+    @Override
+    public boolean onSupportNavigateUp() {
+        onBackPressed();
+        return true;
+    }
+
+    /**
+     * Initialize button and input listeners
+     */
+    private void initializeInputs() {
         final EditText titleInput = findViewById(R.id.titleInput);
         final Button button = findViewById(R.id.button);
 
@@ -80,42 +105,13 @@ public class CreatePathActivity extends BaseActivity {
                 });
             }
         });
-
-        assert getSupportActionBar() != null;
-        getSupportActionBar().setTitle("Create new path");
-
-        // Set back button
-        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
-        getSupportActionBar().setDisplayShowHomeEnabled(true);
     }
 
-    @Override
-    public boolean onSupportNavigateUp() {
-        onBackPressed();
-        return true;
-    }
-    @Override
-    public boolean onCreateOptionsMenu(Menu menu) {
-        // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_main, menu);
-        return true;
-    }
-
-    @Override
-    public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        //noinspection SimplifiableIfStatement
-        if (id == R.id.action_settings) {
-            return true;
-        }
-
-        return super.onOptionsItemSelected(item);
-    }
-
+    /**
+     * Stores the path id to the shared preferences to be
+     * accessed in other places
+     * @param id the path id
+     */
     private void storeTrackingPathId(long id) {
         SharedPreferences pref = getApplicationContext().getSharedPreferences("PathTracking", MODE_PRIVATE);
         SharedPreferences.Editor editor = pref.edit();

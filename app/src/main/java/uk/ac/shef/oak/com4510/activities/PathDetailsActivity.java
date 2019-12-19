@@ -32,50 +32,36 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
  */
 public class PathDetailsActivity extends BaseActivity {
 
+    // fragments visible in the activity
     private PhotosFragment photosFragment;
     private PathMapFragment pathMapFragment;
 
-    private Path path;
-    private TabLayout tabLayout;
+    // details view showing the description of the path
     private View detailsView;
 
+    // view model variables
+    private Path path;
     private GalleryViewModel galleryViewModel;
-
-    private TabLayout.OnTabSelectedListener tabListener = new TabLayout.OnTabSelectedListener() {
-        @Override
-        public void onTabSelected(TabLayout.Tab tab) {
-            if (tab.getPosition() == 0) {
-                setDetailsFragment(photosFragment);
-            } else {
-                setDetailsFragment(pathMapFragment);
-            }
-        }
-
-        @Override
-        public void onTabUnselected(TabLayout.Tab tab) {
-
-        }
-
-        @Override
-        public void onTabReselected(TabLayout.Tab tab) {
-
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.path_details_activity);
 
-        galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
         detailsView = findViewById(R.id.details);
 
-        tabLayout = findViewById(R.id.tabs);
+        // initialize view model
+        galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
+
+        // initialize tabs listener
+        TabLayout tabLayout = findViewById(R.id.tabs);
         tabLayout.addOnTabSelectedListener(tabListener);
 
+        // initialize fragments of the activity
         photosFragment = PhotosFragment.newInstance();
         pathMapFragment = PathMapFragment.newInstance();
 
+        // get path by path id
         int pathId = getIntent().getExtras().getInt("pathId", -1);
         galleryViewModel.getPathById(pathId).observe(this, new Observer<List<Path>>() {
             @Override
@@ -87,8 +73,8 @@ public class PathDetailsActivity extends BaseActivity {
             }
         });
 
+        // set title to toolbar
         toolbar.setTitle(R.string.path_details);
-
 
         // Set back button
         assert getSupportActionBar() != null;
@@ -117,7 +103,10 @@ public class PathDetailsActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(@NonNull MenuItem item) {
+        // handle delete path action
         if (item.getItemId() == R.id.action_delete) {
+            // disable access to delete when the requested
+            // path is the currently being tracked
             int pathId = (int) getSharedPreferences("PathTracking", MODE_PRIVATE).getLong("pathId", -1);
             if (path.getEndTime() == null && pathId == path.getId()) {
                 Toast.makeText(this, "Cannot delete actively tracking path.", Toast.LENGTH_SHORT)
@@ -125,8 +114,8 @@ public class PathDetailsActivity extends BaseActivity {
                 return false;
             }
 
+            // prompt dialog before delete action
             AlertDialog.Builder builder = new AlertDialog.Builder(this);
-
             builder.setMessage("Are you sure you want to delete path \"" + path.getTitle() + "\"?")
                     .setTitle("Delete path")
                     .setPositiveButton("OK", new DialogInterface.OnClickListener() {
@@ -143,6 +132,35 @@ public class PathDetailsActivity extends BaseActivity {
         return super.onOptionsItemSelected(item);
     }
 
+    /**
+     * Tab listener responsible for switching between
+     * fragments.
+     */
+    private TabLayout.OnTabSelectedListener tabListener = new TabLayout.OnTabSelectedListener() {
+        @Override
+        public void onTabSelected(TabLayout.Tab tab) {
+            if (tab.getPosition() == 0) {
+                setDetailsFragment(photosFragment);
+            } else {
+                setDetailsFragment(pathMapFragment);
+            }
+        }
+
+        @Override
+        public void onTabUnselected(TabLayout.Tab tab) {
+
+        }
+
+        @Override
+        public void onTabReselected(TabLayout.Tab tab) {
+
+        }
+    };
+
+    /**
+     * Method to delete the current path and return to previous
+     * activity.
+     */
     private void deletePath() {
         Toast.makeText(PathDetailsActivity.this, "Path removed successfully.", Toast.LENGTH_SHORT).show();
         galleryViewModel.getPhotosByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<PathPhoto>>() {
@@ -154,10 +172,14 @@ public class PathDetailsActivity extends BaseActivity {
                         Executors.newSingleThreadExecutor().execute(new Runnable() {
                             @Override
                             public void run() {
+                                // delete all locations and photos associated with the path
                                 for (LocationTracking location: locations) galleryViewModel.removeLocation(location);
                                 for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
+
+                                // delete the path
                                 galleryViewModel.removePath(path);
 
+                                // return to previous activity
                                 finish();
                             }
                         });
@@ -167,7 +189,12 @@ public class PathDetailsActivity extends BaseActivity {
         });
     }
 
+    /**
+     * Display a new fragment
+     * @param fragment the fragment to display
+     */
     private void setDetailsFragment(final Fragment fragment) {
+        // get current fragment
         Fragment lastFragment = getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_container);
 
@@ -176,6 +203,7 @@ public class PathDetailsActivity extends BaseActivity {
             // Intent, pass the Intent's extras to the fragment as arguments
             fragment.setArguments(getIntent().getExtras());
 
+            // begin transaction to change the fragment
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in_short, R.anim.fade_out_short)
                     .replace(R.id.fragment_container, fragment)
@@ -193,6 +221,9 @@ public class PathDetailsActivity extends BaseActivity {
         }
     }
 
+    /**
+     * Set the details view to the path
+     */
     private void setDetailsView() {
         if (path != null) {
             TextView description = findViewById(R.id.description);

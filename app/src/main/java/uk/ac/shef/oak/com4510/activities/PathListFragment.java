@@ -29,10 +29,12 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
  */
 public class PathListFragment extends Fragment {
 
+    // view model variables
     private GalleryViewModel galleryViewModel;
 
+    // recycler view handlers
     private RecyclerView pathsRecycler;
-    public PathsAdapter adapter;
+    private PathsAdapter adapter;
 
     public static PathListFragment newInstance() {
         return new PathListFragment();
@@ -57,23 +59,41 @@ public class PathListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        buildGallery("");
+        updateList("");
     }
 
-    private void buildGallery(String title) {
+    /**
+     * Search for path using title and update the view to show
+     * result
+     * @param query search query for path title
+     */
+    public void search(String query) {
+        updateList(query);
+    }
+
+    /**
+     * Updates the path list view based on the search entry showing
+     * only paths that match the query requested.
+     * @param title query for searching by title
+     */
+    private void updateList(String title) {
         if (title != null) {
+            // initialize recycler adapter
             if (adapter == null) {
                 adapter = new PathsAdapter(getContext(), new ArrayList<Path>());
                 adapter.setHasStableIds(true);
             }
 
+            // initialize view model
             if (galleryViewModel == null) {
                 galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
             }
 
+            // request path search to the database
             galleryViewModel.searchByTitle(title).observe(this, new Observer<List<Path>>() {
                 @Override
                 public void onChanged(@Nullable List<Path> paths) {
+                    // update recycler view and adapter
                     pathsRecycler.setAdapter(adapter);
                     adapter.setPathList(paths);
                     onEmptyPhotoList(paths);
@@ -82,10 +102,10 @@ public class PathListFragment extends Fragment {
         }
     }
 
-    public void search(String query) {
-        buildGallery(query);
-    }
-
+    /**
+     * Handles the the empty path list case
+     * @param paths the path list
+     */
     private void onEmptyPhotoList(List<Path> paths) {
         TextView text = getView().findViewById(R.id.empty);
 

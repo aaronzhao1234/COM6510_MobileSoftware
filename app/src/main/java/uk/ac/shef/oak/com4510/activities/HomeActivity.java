@@ -31,52 +31,42 @@ import uk.ac.shef.oak.com4510.database.AppDatabase;
  */
 public class HomeActivity extends BaseActivity {
 
+    /**
+     * The database of the app
+     */
+    public static AppDatabase appDatabase;
+
+    // fragments visible in the activity
     private PhotosFragment photosFragment;
     private PathListFragment pathListFragment;
-
-    public static AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         super.setContentView(R.layout.home_content_main);
 
+        // initialize photos and path list fragments
         photosFragment = PhotosFragment.newInstance();
         pathListFragment = PathListFragment.newInstance();
 
+        // set the title of the activity
         toolbar.setTitle(R.string.title_photos);
 
-        // initialize floating add button
-        FloatingActionButton fab = findViewById(R.id.fab);
-        fab.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                // TODO: Make the button do something
-                Intent intent = new Intent(HomeActivity.this, CreatePathActivity.class);
-                startActivity(intent);
-            }
-        });
-
-        Button btn = findViewById(R.id.continueTracking);
-        btn.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                Intent intent = new Intent(HomeActivity.this, PathTrackingActivity.class);
-                startActivity(intent);
-            }
-        });
+        initializeButtons();
 
         // initialize bottom navigation
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
-
+        // disable home icon
+        assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayShowHomeEnabled(false);
+
         // set initial gallery fragment to activity
         setGalleryFragment(photosFragment);
 
+        // initialize database
         appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,"app_db").build();
-
     }
 
     @SuppressLint("RestrictedApi")
@@ -84,6 +74,7 @@ public class HomeActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        // update buttons based on the tracking status
         FloatingActionButton fab = findViewById(R.id.fab);
         Button btn = findViewById(R.id.continueTracking);
 
@@ -108,6 +99,7 @@ public class HomeActivity extends BaseActivity {
                 (SearchView) menu.findItem(R.id.action_search).getActionView();
         searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
 
+        // initialize input listeners
         searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
             @Override
             public boolean onQueryTextChange(String newText) {
@@ -139,16 +131,8 @@ public class HomeActivity extends BaseActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-
-        if (id == R.id.action_settings) {
-            // TODO: Make the button do something
-
-            return true;
-        } else if (id == R.id.action_view_mode) {
+        // Handle action bar item clicks
+        if (item.getItemId() == R.id.action_view_mode) {
             if (pathListFragment.adapter.isCollapsed()) {
                 pathListFragment.adapter.setCollapsed(false);
                 item.setIcon(R.drawable.ic_view_list_24px);
@@ -160,6 +144,32 @@ public class HomeActivity extends BaseActivity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    /**
+     * Add and resume path button initializer
+     */
+    private void initializeButtons() {
+        // initialize floating add button
+        FloatingActionButton fab = findViewById(R.id.fab);
+        fab.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                // redirect to create path activity
+                Intent intent = new Intent(HomeActivity.this, CreatePathActivity.class);
+                startActivity(intent);
+            }
+        });
+
+        // initialize continue tracking button
+        Button btn = findViewById(R.id.continueTracking);
+        btn.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                Intent intent = new Intent(HomeActivity.this, PathTrackingActivity.class);
+                startActivity(intent);
+            }
+        });
     }
 
     private BottomNavigationView.OnNavigationItemSelectedListener mOnNavigationItemSelectedListener
@@ -180,6 +190,7 @@ public class HomeActivity extends BaseActivity {
     };
 
     private void setGalleryFragment(Fragment fragment) {
+        // get visible fragment
         Fragment lastFragment = getSupportFragmentManager()
                 .findFragmentById(R.id.fragment_container);
 
@@ -187,6 +198,7 @@ public class HomeActivity extends BaseActivity {
             MenuItem viewMode = toolbar.getMenu().findItem(R.id.action_view_mode);
             MenuItem search = toolbar.getMenu().findItem(R.id.action_search);
 
+            // update toolbar based on the visible fragment
             if (fragment.getClass().equals(PhotosFragment.class)) {
                 if (viewMode != null) viewMode.setVisible(false);
                 if (search != null) search.setVisible(false);
@@ -204,16 +216,24 @@ public class HomeActivity extends BaseActivity {
             getIntent().putExtra("pathId", -1);
             fragment.setArguments(getIntent().getExtras());
 
+            // begin fragment transaction
             getSupportFragmentManager().beginTransaction()
                     .setCustomAnimations(R.anim.fade_in_short, R.anim.fade_out_short)
                     .replace(R.id.fragment_container, fragment)
                     .commit();
         } else {
+            // scroll to top if photo tab pressed when the photo
+            // fragment is active
             ((RecyclerView) fragment.getView().findViewById(R.id.gallery_recycler))
                     .scrollToPosition(0);
         }
     }
 
+    /**
+     * Check if the service responsible for handling location
+     * tracking is enabled.
+     * @return whether the service is active or not
+     */
     private boolean isLocationServiceRunning() {
         ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
         for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
