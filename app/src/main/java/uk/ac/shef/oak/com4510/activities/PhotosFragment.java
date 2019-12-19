@@ -3,6 +3,7 @@ package uk.ac.shef.oak.com4510.activities;
 import android.content.res.Configuration;
 import android.os.Bundle;
 import android.util.DisplayMetrics;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -19,6 +20,7 @@ import androidx.recyclerview.widget.RecyclerView;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.concurrent.Executors;
 
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.adapter.PhotosAdapter;
@@ -54,8 +56,13 @@ public class PhotosFragment extends Fragment {
         photosRecycler = v.findViewById(R.id.gallery_recycler);
 
         // use a grid layout manager
+
         layoutManager = new GalleryLayoutManager(getContext(), 4);
         photosRecycler.setLayoutManager(layoutManager);
+
+        adapter = new PhotosAdapter(new ArrayList<PathPhoto>(), PhotosAdapter.GRID_LAYOUT);
+        adapter.setHasStableIds(true);
+        photosRecycler.setAdapter(adapter);
 
         // improve performance of recycler view
         photosRecycler.setHasFixedSize(true);
@@ -72,12 +79,6 @@ public class PhotosFragment extends Fragment {
         displayMetrics = new DisplayMetrics();
         getActivity().getWindowManager().getDefaultDisplay().getMetrics(displayMetrics);
 
-        // initialize recycler adapter
-        if (adapter == null) {
-            adapter = new PhotosAdapter(new ArrayList<PathPhoto>(), PhotosAdapter.GRID_LAYOUT);
-            adapter.setHasStableIds(true);
-        }
-
         // initialize view model
         if (galleryViewModel == null) {
             galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
@@ -89,8 +90,7 @@ public class PhotosFragment extends Fragment {
             // retrieve all photos from database
             galleryViewModel.getAllPathPhotos().observe(this, new Observer<List<PathPhoto>>() {
                 @Override
-                public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
-                    photosRecycler.setAdapter(adapter);
+                public void onChanged(@Nullable final List<PathPhoto> pathPhotos) {
                     adapter.setPhotoList(pathPhotos, pathId);
                     onEmptyPhotoList(pathPhotos);
                 }
@@ -100,7 +100,6 @@ public class PhotosFragment extends Fragment {
             galleryViewModel.getPhotosByPath(pathId).observe(this, new Observer<List<PathPhoto>>() {
                 @Override
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
-                    photosRecycler.setAdapter(adapter);
                     adapter.setPhotoList(pathPhotos, pathId);
                     onEmptyPhotoList(pathPhotos);
                 }

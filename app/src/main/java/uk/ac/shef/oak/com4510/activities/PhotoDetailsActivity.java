@@ -1,6 +1,7 @@
 package uk.ac.shef.oak.com4510.activities;
 
 import android.os.Bundle;
+import android.os.Handler;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
@@ -35,6 +36,8 @@ public class PhotoDetailsActivity extends BaseActivity {
 
         //---------------------ViewPager------------------------------------------
         viewPager = findViewById(R.id.viewPager_id);
+        adapter = new PhotoDetailsAdapter(getSupportFragmentManager());
+        viewPager.setAdapter(adapter);
 
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
@@ -42,21 +45,17 @@ public class PhotoDetailsActivity extends BaseActivity {
         if (pathId == -1) {
             galleryViewModel.getAllPathPhotos().observe(this, new Observer<List<PathPhoto>>() {
                 @Override
-                public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
-                    adapter = new PhotoDetailsAdapter(getSupportFragmentManager());
+                public void onChanged(@Nullable final List<PathPhoto> pathPhotos) {
                     adapter.setPhotoList(pathPhotos);
-                    viewPager.setAdapter(adapter);
-                    viewPager.setCurrentItem(getIntent().getIntExtra("startPosition", 0));
+                    viewPager.setCurrentItem(getIntent().getIntExtra("startPosition", 0), false);
                 }
             });
         } else {
             galleryViewModel.getPhotosByPath(pathId).observe(this, new Observer<List<PathPhoto>>() {
                 @Override
-                public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
-                    adapter = new PhotoDetailsAdapter(getSupportFragmentManager());
+                public void onChanged(@Nullable final List<PathPhoto> pathPhotos) {
                     adapter.setPhotoList(pathPhotos);
-                    viewPager.setAdapter(adapter);
-                    viewPager.setCurrentItem(getIntent().getIntExtra("startPosition", 0));
+                    viewPager.setCurrentItem(getIntent().getIntExtra("startPosition", 0), false);
                 }
             });
         }

@@ -15,8 +15,4 @@ public class GalleryLayoutManager extends GridLayoutManager {
         super(context, columnWidth);
     }
 
-    @Override
-    public void onMeasure(@NonNull RecyclerView.Recycler recycler, @NonNull RecyclerView.State state, int widthSpec, int heightSpec) {
-        super.onMeasure(recycler, state, widthSpec, widthSpec);
-    }
 }

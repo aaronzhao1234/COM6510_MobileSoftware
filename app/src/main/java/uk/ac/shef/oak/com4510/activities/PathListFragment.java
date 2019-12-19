@@ -47,6 +47,9 @@ public class PathListFragment extends Fragment {
         View v = inflater.inflate(R.layout.path_list_fragment, container, false);
 
         pathsRecycler = v.findViewById(R.id.gallery_recycler);
+        adapter = new PathsAdapter(getContext(), new ArrayList<Path>());
+        adapter.setHasStableIds(true);
+        pathsRecycler.setAdapter(adapter);
 
         // use a grid layout manager
         LinearLayoutManager layoutManager = new LinearLayoutManager(getContext());
@@ -78,12 +81,6 @@ public class PathListFragment extends Fragment {
      */
     private void updateList(String title) {
         if (title != null) {
-            // initialize recycler adapter
-            if (adapter == null) {
-                adapter = new PathsAdapter(getContext(), new ArrayList<Path>());
-                adapter.setHasStableIds(true);
-            }
-
             // initialize view model
             if (galleryViewModel == null) {
                 galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
@@ -94,7 +91,6 @@ public class PathListFragment extends Fragment {
                 @Override
                 public void onChanged(@Nullable List<Path> paths) {
                     // update recycler view and adapter
-                    pathsRecycler.setAdapter(adapter);
                     adapter.setPathList(paths);
                     onEmptyPhotoList(paths);
                 }

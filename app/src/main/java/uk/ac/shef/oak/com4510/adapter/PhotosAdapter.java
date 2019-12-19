@@ -2,6 +2,7 @@ package uk.ac.shef.oak.com4510.adapter;
 
 import android.content.Intent;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -42,7 +43,7 @@ public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.PhotoViewH
         // - get element from your dataset at this position
         // - replace the contents of the view with that element
         PathPhoto photo = photoList.get(position);
-        holder.imageView.setImageURI(Uri.parse(photo.getPhotoPath()));
+        holder.imageView.setImageURI(Uri.parse(photo.getPhotoPath().substring(0, photo.getPhotoPath().length() - 4) + "_thumb.jpg"));
 
         holder.imageView.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -58,7 +59,7 @@ public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.PhotoViewH
     // Return the size of your dataset (invoked by the layout manager)
     @Override
     public int getItemCount() {
-        return photoList.size();
+        return photoList != null ? photoList.size() : 0;
     }
 
     public void setPhotoList(List<PathPhoto> photoList) {

@@ -31,11 +31,12 @@ public class PhotoDetailsAdapter extends FragmentPagerAdapter {
 
     @Override
     public int getCount() {
-        return photoList.size();
+        return photoList != null ? photoList.size() : 0;
     }
 
     public void setPhotoList(List<PathPhoto> photoList) {
         this.photoList = photoList;
+        notifyDataSetChanged();
     }
 
 }

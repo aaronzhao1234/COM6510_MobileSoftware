@@ -6,6 +6,9 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.ThumbnailUtils;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -24,6 +27,7 @@ import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.nio.channels.FileChannel;
@@ -300,23 +304,43 @@ public class PathTrackingActivity extends BaseActivity {
      * @param returnedPhotos
      */
     private void onPhotosReturned(List<File> returnedPhotos) throws IOException {
-        // create image file
-        String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
-        String imageFileName = "JPEG_" + timeStamp + "_";
-        File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
-        File image = new File(storageDir, imageFileName + ".jpg");
+        int id = 0;
+        for (File photoFile: returnedPhotos) {
+            // create image file
+            String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
+            String imageFileName = "JPEG_" + timeStamp + "_" + id;
+            File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
+            File image = new File(storageDir, imageFileName + ".jpg");
 
-        // copy content of selected image to the final image destination
-        FileInputStream is = new FileInputStream(returnedPhotos.get(0));
-        FileOutputStream  os = new FileOutputStream(image);
+            // copy content of selected image to the final image destination
+            copyFile(photoFile, image);
+
+            // create thumbnail
+            File thumbnailFile = new File(storageDir, imageFileName + "_thumb.jpg");
+            FileOutputStream out = new FileOutputStream(thumbnailFile);
+            Bitmap ThumbImage = ThumbnailUtils.extractThumbnail(BitmapFactory.decodeFile(image.getAbsolutePath()), 256, 256);
+            ThumbImage.compress(Bitmap.CompressFormat.JPEG, 100, out); // bmp is your Bitmap instance
+
+            // store the image to the database
+            storeImage(image);
+            id++;
+        }
+
+        if (returnedPhotos.size() > 1) {
+            Toast.makeText(this, "Photos added to path.", Toast.LENGTH_SHORT).show();
+        } else {
+            Toast.makeText(this, "Photo added to path.", Toast.LENGTH_SHORT).show();
+        }
+    }
+
+    private void copyFile(File file1, File file2) throws IOException {
+        FileInputStream is = new FileInputStream(file1);
+        FileOutputStream  os = new FileOutputStream(file2);
         FileChannel inChannel = is.getChannel();
         FileChannel outChannel = os.getChannel();
         inChannel.transferTo(0, inChannel.size(), outChannel);
         is.close();
         os.close();
-
-        // store the image to the database
-        storeImage(image);
     }
 
     /**
@@ -358,7 +382,6 @@ public class PathTrackingActivity extends BaseActivity {
 
         // insert into database and show prompt of finish
         galleryViewModel.insertPhoto(photo, null);
-        Toast.makeText(this, "Photo added to path.", Toast.LENGTH_SHORT).show();
     }
 
     /**

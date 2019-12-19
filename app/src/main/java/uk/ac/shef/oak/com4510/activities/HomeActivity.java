@@ -55,7 +55,7 @@ public class HomeActivity extends BaseActivity {
         initializeButtons();
 
         // initialize bottom navigation
-        BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
+        BottomNavigationView navigation = findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
         // disable home icon
