@@ -168,13 +168,12 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
      * during path tracking.
      * @param locations list of tracking locations
      */
-    private ArrayList<LatLng> mPolyPoints = new ArrayList<LatLng>();
-    private LatLng position;
 
     private void populateWithLocation(List<LocationTracking> locations) {
         List<LatLng> points = new ArrayList<>();
+
         for (LocationTracking location: locations) {
-            position = new LatLng(location.getLatitude(), location.getLongitude());
+            LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
             points.add(position);
         }
 
@@ -184,7 +183,10 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
         polyline.setEndCap(new RoundCap());
         polyline.setWidth(12);
         polyline.setColor(0xff000000);
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,14.0f));
+
+        if (points.size() > 0) {
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(points.get(points.size() - 1),14.0f));
+        }
     }
 
 }
