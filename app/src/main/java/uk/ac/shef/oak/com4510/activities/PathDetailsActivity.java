@@ -190,7 +190,6 @@ public class PathDetailsActivity extends BaseActivity {
 
             assert getSupportActionBar() != null;
             getSupportActionBar().setTitle(path.getTitle());
-
             detailsView.setVisibility(View.VISIBLE);
         }
     }

@@ -20,8 +20,10 @@ import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
+import androidx.room.Room;
 
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.database.AppDatabase;
 
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
@@ -30,6 +32,8 @@ public class HomeActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;
     private PathListFragment pathListFragment;
+
+    public static AppDatabase appDatabase;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -69,6 +73,9 @@ public class HomeActivity extends BaseActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(false);
         // set initial gallery fragment to activity
         setGalleryFragment(photosFragment);
+
+        appDatabase = Room.databaseBuilder(getApplicationContext(), AppDatabase.class,"app_db").build();
+
     }
 
     @SuppressLint("RestrictedApi")

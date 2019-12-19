@@ -68,6 +68,7 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
 
     private Barometer barometer;
     private Thermometer thermometer;
+    private static AppCompatActivity activity;
 
     private static GoogleMap mMap;
 
@@ -78,11 +79,24 @@ public class PathTrackingActivity extends BaseActivity implements OnMapReadyCall
 
     private Intent intent;
 
+    public static AppCompatActivity getActivity() {
+        return activity;
+    }
+
+    public static void setActivity(AppCompatActivity activity) {
+        PathTrackingActivity.activity = activity;
+    }
+
+    public static GoogleMap getMap() {
+        return mMap;
+    }
+
     @RequiresApi(api = Build.VERSION_CODES.P)
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.path_tracking_activity);
+        setActivity(this);
 
         checkPermission();
 

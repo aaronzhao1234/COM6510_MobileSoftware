@@ -11,6 +11,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
+import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -24,7 +25,6 @@ import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdate;
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
@@ -33,6 +33,8 @@ import java.text.DateFormat;
 import java.util.Date;
 
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
+import uk.ac.shef.oak.com4510.model.Path;
 
 
 @RequiresApi(api = Build.VERSION_CODES.O)
@@ -59,6 +61,8 @@ public class LocationService extends IntentService {
     public LocationService() {
         super("PathTracking");
     }
+
+    PathDetailsActivity pathDetailsActivity = new PathDetailsActivity();
 
     @Override
     public void onCreate() {
@@ -122,6 +126,26 @@ public class LocationService extends IntentService {
             editor.commit();
 
             Log.i("MAP", "new location " + mCurrentLocation.toString());
+
+
+            LocationTracking locationTracking = new LocationTracking();
+            //====need to change==================//
+            locationTracking.setPathName("name");
+            //====================================//
+            locationTracking.setTime(mLastUpdateTime);
+            locationTracking.setLatitude(mCurrentLocation.getLatitude());
+            locationTracking.setLongitude(mCurrentLocation.getLongitude());
+            new AddLocationAsync(locationTracking).execute();
+
+            PathTrackingActivity.getActivity().runOnUiThread(new Runnable(){
+
+                @Override
+                public void run() {
+                    PathTrackingActivity.getMap().moveCamera(CameraUpdateFactory.newLatLng(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude())));
+                    PathTrackingActivity.getMap().addMarker(new MarkerOptions().position(new LatLng(mCurrentLocation.getLatitude(), mCurrentLocation.getLongitude()))
+                            .title(mLastUpdateTime));
+                }
+            });
         }
     };
 
@@ -140,6 +164,26 @@ public class LocationService extends IntentService {
 
         assert manager != null;
         manager.createNotificationChannel(chan);
+    }
+
+    class AddLocationAsync extends AsyncTask<Void, Void, Void> {
+
+        private LocationTracking mLocationTracking;
+        AddLocationAsync(LocationTracking locationTracking){
+            mLocationTracking = locationTracking;
+        }
+
+        @Override
+        protected Void doInBackground(Void... params) {
+            HomeActivity.appDatabase.locationDao().addLocation(mLocationTracking);
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(Void aVoid) {
+            super.onPostExecute(aVoid);
+            Log.i("Async","location saved");
+        }
     }
 
 }

@@ -1,5 +1,6 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.os.AsyncTask;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.LayoutInflater;
@@ -13,6 +14,7 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
@@ -24,12 +26,17 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;
     private GalleryViewModel galleryViewModel;
+    private ArrayList<Double> mLatitude = new ArrayList<Double>();
+    private ArrayList<Double> mLongitude = new ArrayList<Double>();
+    private ArrayList<String> mTime = new ArrayList<String>();
+    private int locationNumber;
 
     public static PathMapFragment newInstance() {
         return new PathMapFragment();
@@ -73,6 +80,8 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
                 populateMap(photos);
             }
         });
+
+        new ReadLocationAsync().execute();
     }
 
     private void populateMap(List<PathPhoto> photos) {
@@ -84,6 +93,42 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
             LatLng position = new LatLng(lat, lng);
             mMap.addMarker(new MarkerOptions().position(position));
             mMap.moveCamera(CameraUpdateFactory.newLatLng(position));
+        }
+    }
+
+
+    PathDetailsActivity pathDetailsActivity = new PathDetailsActivity();
+
+    class ReadLocationAsync extends AsyncTask<Void, Void, String> {
+
+        List<LocationTracking> locationTrackings;
+        ReadLocationAsync(){}
+
+        @Override
+        protected String doInBackground(Void... params) {
+
+            locationTrackings = HomeActivity.appDatabase.locationDao().getLocationByName("name");
+            locationNumber = 0;
+            for (LocationTracking locations : locationTrackings){
+                mTime.add(locations.getTime());
+                mLatitude.add(locations.getLatitude());
+                mLongitude.add(locations.getLongitude());
+                locationNumber++;
+            }
+            return null;
+        }
+
+        @Override
+        protected void onPostExecute(String s) {
+            super.onPostExecute(s);
+            int i;
+            for (i=0; i<locationNumber; i++){
+                LatLng locationInPath = new LatLng(mLatitude.get(i),mLongitude.get(i));
+                mMap.addMarker(new MarkerOptions().position(locationInPath).title(mTime.get(i)));
+            }
+            LatLng startingPoint = new LatLng(mLatitude.get(0),mLongitude.get(0));
+            mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(startingPoint,14.0f));
+            mMap.getUiSettings().setZoomControlsEnabled(true);
         }
     }
 

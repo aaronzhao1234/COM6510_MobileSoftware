@@ -7,19 +7,21 @@ import androidx.room.Room;
 import androidx.room.RoomDatabase;
 import androidx.room.TypeConverters;
 
+import java.util.Date;
+
 import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.Converters;
 
-import java.util.Date;
-
-@Database(entities = {Path.class, PathPhoto.class}, version = 12, exportSchema = false)
+@Database(entities = {Path.class, PathPhoto.class, LocationTracking.class}, version = 15, exportSchema = false)
 @TypeConverters({Converters.class})
 public abstract class AppDatabase extends RoomDatabase {
 
     public abstract PathDao pathDao();
     public abstract PathPhotoDao pathPhotoDao();
+    public abstract LocationTrackingDao locationDao();
 
     public static Path[] paths = new Path[] {
             new Path("Path 1", "Path 1 Description", new Date(), new Date()),
