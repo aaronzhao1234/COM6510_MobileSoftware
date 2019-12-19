@@ -37,6 +37,10 @@ public class GalleryRepository {
         return allPaths;
     }
 
+    public LiveData<List<Path>> getPathsByTitle(String title) {
+        return pathDao.getAllByTitle(title);
+    }
+
     public LiveData<List<Path>> getPathById(int id) {
         return pathDao.getById(id);
     }

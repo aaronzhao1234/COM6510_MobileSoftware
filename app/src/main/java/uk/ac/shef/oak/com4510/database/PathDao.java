@@ -15,6 +15,9 @@ import java.util.List;
 @Dao
 public interface PathDao extends DaoInterface {
 
+    @Query("SELECT * FROM path WHERE title LIKE '%' || :titleQuery || '%' ORDER BY id DESC")
+    LiveData<List<Path>> getAllByTitle(String titleQuery);
+
     @Query("SELECT * FROM path ORDER BY id DESC")
     LiveData<List<Path>> getAll();
 

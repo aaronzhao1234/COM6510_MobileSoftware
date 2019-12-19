@@ -27,6 +27,10 @@ public class GalleryViewModel extends AndroidViewModel {
         allPathPhotos = repository.getAllPathPhotos();
     }
 
+    public LiveData<List<Path>> searchByTitle(String title) {
+        return repository.getPathsByTitle(title);
+    }
+
     public LiveData<List<Path>> getAllPaths() {
         return allPaths;
     }
@@ -58,6 +62,8 @@ public class GalleryViewModel extends AndroidViewModel {
     public void insertPath(Path path, GalleryRepository.InsertCallback callback) {
         repository.insert(path, callback);
     }
+
+
 
     public LiveData<List<PathPhoto>> getPhotosByPath(int pathId) {
         return repository.getPathPhotosByPathId(pathId);

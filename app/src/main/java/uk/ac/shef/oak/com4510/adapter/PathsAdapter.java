@@ -54,7 +54,9 @@ public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHold
                         if (pathPhotos.size() == 0) {
                             holder.empty.setVisibility(View.VISIBLE);
                         } else {
-                            holder.adapter.setPhotoList(pathPhotos, pathList.get(position).getId());
+                            if (pathList.size() != 0) {
+                                holder.adapter.setPhotoList(pathPhotos, pathList.get(position).getId());
+                            }
                         }
                     }
                 });

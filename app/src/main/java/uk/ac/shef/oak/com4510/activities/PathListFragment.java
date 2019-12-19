@@ -1,9 +1,13 @@
 package uk.ac.shef.oak.com4510.activities;
 
+import android.app.SearchManager;
+import android.content.Intent;
 import android.os.Bundle;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -17,6 +21,7 @@ import androidx.recyclerview.widget.RecyclerView;
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.adapter.PathsAdapter;
 import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 import java.util.ArrayList;
@@ -52,32 +57,43 @@ public class PathListFragment extends Fragment {
     @Override
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
-        buildGallery();
+        buildGallery("");
     }
 
-    @Override
-    public void onResume() {
-        super.onResume();
-        buildGallery();
-    }
-
-    private void buildGallery() {
-        if (adapter == null) {
-            adapter = new PathsAdapter(getContext(), new ArrayList<Path>());
-            adapter.setHasStableIds(true);
-        }
-
-        if (galleryViewModel == null) {
-            galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
-        }
-
-        galleryViewModel.getAllPaths().observe(this, new Observer<List<Path>>() {
-            @Override
-            public void onChanged(@Nullable List<Path> paths) {
-                pathsRecycler.setAdapter(adapter);
-                adapter.setPathList(paths);
+    private void buildGallery(String title) {
+        if (title != null) {
+            if (adapter == null) {
+                adapter = new PathsAdapter(getContext(), new ArrayList<Path>());
+                adapter.setHasStableIds(true);
             }
-        });
+
+            if (galleryViewModel == null) {
+                galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
+            }
+
+            galleryViewModel.searchByTitle(title).observe(this, new Observer<List<Path>>() {
+                @Override
+                public void onChanged(@Nullable List<Path> paths) {
+                    pathsRecycler.setAdapter(adapter);
+                    adapter.setPathList(paths);
+                    onEmptyPhotoList(paths);
+                }
+            });
+        }
+    }
+
+    public void search(String query) {
+        buildGallery(query);
+    }
+
+    private void onEmptyPhotoList(List<Path> paths) {
+        TextView text = getView().findViewById(R.id.empty);
+
+        if (paths.isEmpty()) {
+            text.setVisibility(View.VISIBLE);
+        } else {
+            text.setVisibility(View.GONE);
+        }
     }
 
 }

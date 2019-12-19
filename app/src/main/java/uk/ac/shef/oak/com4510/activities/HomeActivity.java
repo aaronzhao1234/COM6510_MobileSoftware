@@ -1,20 +1,23 @@
 package uk.ac.shef.oak.com4510.activities;
 
-import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.ActivityManager;
+import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.os.Build;
 import android.os.Bundle;
+import android.util.Log;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
+import android.view.SearchEvent;
 import android.view.View;
 import android.widget.Button;
+import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.RequiresApi;
-import androidx.core.app.ActivityCompat;
+import androidx.annotation.Nullable;
+import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -62,6 +65,8 @@ public class HomeActivity extends BaseActivity {
         BottomNavigationView navigation = (BottomNavigationView) findViewById(R.id.navigation);
         navigation.setOnNavigationItemSelectedListener(mOnNavigationItemSelectedListener);
 
+
+        getSupportActionBar().setDisplayShowHomeEnabled(false);
         // set initial gallery fragment to activity
         setGalleryFragment(photosFragment);
     }
@@ -81,6 +86,47 @@ public class HomeActivity extends BaseActivity {
             btn.setVisibility(View.GONE);
             fab.setVisibility(View.VISIBLE);
         }
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.menu_main, menu);
+
+        // Associate searchable configuration with the SearchView
+        SearchManager searchManager =
+                (SearchManager) getSystemService(Context.SEARCH_SERVICE);
+        SearchView searchView =
+                (SearchView) menu.findItem(R.id.action_search).getActionView();
+        searchView.setSearchableInfo(searchManager.getSearchableInfo(getComponentName()));
+
+        searchView.setOnQueryTextListener(new SearchView.OnQueryTextListener() {
+            @Override
+            public boolean onQueryTextChange(String newText) {
+                return true;
+            }
+
+            @Override
+            public boolean onQueryTextSubmit(String query) {
+                pathListFragment.search(query);
+                return true;
+            }
+        });
+
+        menu.findItem(R.id.action_search).setOnActionExpandListener(new MenuItem.OnActionExpandListener() {
+            @Override
+            public boolean onMenuItemActionExpand(MenuItem item) {
+                return true;
+            }
+
+            @Override
+            public boolean onMenuItemActionCollapse(MenuItem item) {
+                pathListFragment.search("");
+                return true;
+            }
+        });
+
+        return true;
     }
 
     @Override
@@ -130,17 +176,18 @@ public class HomeActivity extends BaseActivity {
                 .findFragmentById(R.id.fragment_container);
 
         if (!fragment.equals(lastFragment)) {
-            MenuItem menuItem = toolbar.getMenu().findItem(R.id.action_view_mode);
+            MenuItem viewMode = toolbar.getMenu().findItem(R.id.action_view_mode);
+            MenuItem search = toolbar.getMenu().findItem(R.id.action_search);
 
             if (fragment.getClass().equals(PhotosFragment.class)) {
-                if (menuItem != null) {
-                    menuItem.setVisible(false);
-                }
+                if (viewMode != null) viewMode.setVisible(false);
+                if (search != null) search.setVisible(false);
+
                 toolbar.setTitle(R.string.title_photos);
             } else {
-                if (menuItem != null) {
-                    menuItem.setVisible(true);
-                }
+                if (viewMode != null) viewMode.setVisible(true);
+                if (search != null) search.setVisible(true);
+
                 toolbar.setTitle(R.string.title_paths);
             }
 
@@ -166,6 +213,7 @@ public class HomeActivity extends BaseActivity {
                 return true;
             }
         }
+
         return false;
     }
 

@@ -6,6 +6,7 @@ import android.util.DisplayMetrics;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
@@ -81,6 +82,7 @@ public class PhotosFragment extends Fragment {
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
                     photosRecycler.setAdapter(adapter);
                     adapter.setPhotoList(pathPhotos, pathId);
+                    onEmptyPhotoList(pathPhotos);
                 }
             });
         } else {
@@ -89,10 +91,10 @@ public class PhotosFragment extends Fragment {
                 public void onChanged(@Nullable List<PathPhoto> pathPhotos) {
                     photosRecycler.setAdapter(adapter);
                     adapter.setPhotoList(pathPhotos, pathId);
+                    onEmptyPhotoList(pathPhotos);
                 }
             });
         }
-
     }
 
     @Override
@@ -107,6 +109,16 @@ public class PhotosFragment extends Fragment {
             layoutManager.setSpanCount((int) (1.7f * ((float) displayMetrics.heightPixels) / displayMetrics.ydpi));
         } else if (newConfig.orientation == Configuration.ORIENTATION_PORTRAIT) {
             layoutManager.setSpanCount((int) (1.7f * ((float) displayMetrics.widthPixels) / displayMetrics.xdpi));
+        }
+    }
+
+    private void onEmptyPhotoList(List<PathPhoto> pathPhotos) {
+        TextView text = getView().findViewById(R.id.empty);
+
+        if (pathPhotos.isEmpty()) {
+            text.setVisibility(View.VISIBLE);
+        } else {
+            text.setVisibility(View.GONE);
         }
     }
 
