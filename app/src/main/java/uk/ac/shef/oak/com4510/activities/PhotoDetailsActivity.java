@@ -2,6 +2,7 @@ package uk.ac.shef.oak.com4510.activities;
 
 import android.os.Bundle;
 import android.os.Handler;
+import android.widget.ScrollView;
 
 import androidx.annotation.Nullable;
 import androidx.lifecycle.Observer;
