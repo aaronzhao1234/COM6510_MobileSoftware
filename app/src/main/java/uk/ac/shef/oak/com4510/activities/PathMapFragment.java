@@ -25,6 +25,7 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
+import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
@@ -167,18 +168,30 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
      * during path tracking.
      * @param locations list of tracking locations
      */
+    private ArrayList<LatLng> mPolyPoints = new ArrayList<LatLng>();
+    private LatLng position;
+
     private void populateWithLocation(List<LocationTracking> locations) {
+
         for (LocationTracking location: locations) {
-            LatLng position = new LatLng(location.getLatitude(), location.getLongitude());
+            position = new LatLng(location.getLatitude(), location.getLongitude());
 
-            Polyline polyline = mMap.addPolyline(new PolylineOptions().add(position));
-            polyline.setEndCap(new RoundCap());
-            polyline.setWidth(12);
-            polyline.setColor(0xff000000);
-            polyline.setJointType(JointType.ROUND);
-
+            mPolyPoints.add(position);
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,14.0f));
+
+            Polyline polyline;
+            if (mPolyPoints.size()>1) {
+
+                polyline = mMap.addPolyline(new PolylineOptions().add(mPolyPoints.get(mPolyPoints.size() - 2), mPolyPoints.get(mPolyPoints.size() - 1)));
+                polyline.setStartCap(new RoundCap());
+                polyline.setEndCap(new RoundCap());
+                polyline.setWidth(12);
+                polyline.setColor(0xff000000);
+
+            }
+
         }
+
     }
 
 }
