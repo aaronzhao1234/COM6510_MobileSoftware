@@ -22,7 +22,13 @@ public class Utilities {
         return (formatter.format(date));
     }
 
+    /**
+     * Convert a {@link Date} into time string
+     * @param date date to be converted
+     * @return a time string of type dd/MM/yyyy
+     */
     public static String dateToStringSimple(Date date) {
         return new SimpleDateFormat("dd/MM/yyyy").format(date);
     }
+
 }
