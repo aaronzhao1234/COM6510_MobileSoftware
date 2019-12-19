@@ -3,6 +3,7 @@ package uk.ac.shef.oak.com4510.activities;
 import android.Manifest;
 import android.annotation.SuppressLint;
 import android.app.Activity;
+import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
@@ -13,10 +14,12 @@ import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
 import android.os.FileUtils;
+import android.os.Handler;
 import android.provider.MediaStore;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
@@ -41,6 +44,8 @@ import com.google.android.gms.tasks.OnFailureListener;
 import com.google.android.gms.tasks.Task;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import org.w3c.dom.Text;
+
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
@@ -62,6 +67,7 @@ import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.Barometer;
 import uk.ac.shef.oak.com4510.utils.Thermometer;
+import uk.ac.shef.oak.com4510.utils.Utilities;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 public class PathTrackingActivity extends BaseActivity {
@@ -186,6 +192,7 @@ public class PathTrackingActivity extends BaseActivity {
     private void startLocationUpdates(Context context) {
         intent = new Intent(context, LocationService.class);
         context.startForegroundService(intent);
+        startTimer();
     }
 
     @Override
@@ -339,6 +346,21 @@ public class PathTrackingActivity extends BaseActivity {
 
         galleryViewModel.insertPhoto(photo, null);
         Toast.makeText(this, "Photo added to path.", Toast.LENGTH_SHORT).show();
+    }
+
+    private void startTimer() {
+        final Handler h = new Handler();
+        final TextView timerText = findViewById(R.id.timer);
+
+        h.postDelayed(new Runnable() {
+            @Override
+            public void run()
+            {
+                long timeElapsed = new Date().getTime() - trackingPath.getStartTime().getTime();
+                timerText.setText(Utilities.mSecsToString(timeElapsed));
+                h.postDelayed(this, 1000);
+            }
+        }, 1000);
     }
 
 }

@@ -3,6 +3,8 @@ package uk.ac.shef.oak.com4510.activities;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -141,6 +143,7 @@ public class PathDetailsActivity extends BaseActivity {
     }
 
     private void deletePath() {
+        Toast.makeText(PathDetailsActivity.this, "Path removed successfully.", Toast.LENGTH_SHORT).show();
         galleryViewModel.getPhotosByPath(path.getId()).observe(PathDetailsActivity.this, new Observer<List<PathPhoto>>() {
             @Override
             public void onChanged(final List<PathPhoto> pathPhotos) {
@@ -153,8 +156,6 @@ public class PathDetailsActivity extends BaseActivity {
                                 for (LocationTracking location: locations) galleryViewModel.removeLocation(location);
                                 for (PathPhoto photo: pathPhotos) galleryViewModel.removePhoto(photo);
                                 galleryViewModel.removePath(path);
-
-                                Toast.makeText(PathDetailsActivity.this, "Path removed successfully.", Toast.LENGTH_SHORT).show();
 
                                 finish();
                             }
