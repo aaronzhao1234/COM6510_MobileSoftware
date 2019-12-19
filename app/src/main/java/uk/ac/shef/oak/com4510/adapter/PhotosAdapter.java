@@ -10,12 +10,17 @@ import android.widget.ImageView;
 import androidx.annotation.NonNull;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.List;
+
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.activities.PhotoDetailsActivity;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 
-import java.util.List;
-
+/**
+ * This adapter handles the recycler view of the photos fragment.
+ * It is responsible for properly displaying the photos on the grid
+ * or horizontal list.
+ */
 public class PhotosAdapter extends RecyclerView.Adapter<PhotosAdapter.PhotoViewHolder> {
 
     public static final int GRID_LAYOUT = 0;

@@ -11,6 +11,9 @@ import java.util.Date;
 
 import uk.ac.shef.oak.com4510.utils.EntityInterface;
 
+/**
+ * This is a model responsible for storing the photo details
+ */
 @Entity(indices = {@Index("path_id")},
         foreignKeys = @ForeignKey(entity = Path.class,
         parentColumns = "id",

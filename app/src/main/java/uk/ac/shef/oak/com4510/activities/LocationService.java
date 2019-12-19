@@ -11,7 +11,6 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.graphics.Color;
 import android.location.Location;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.IBinder;
 import android.util.Log;
@@ -19,26 +18,27 @@ import android.util.Log;
 import androidx.annotation.Nullable;
 import androidx.annotation.RequiresApi;
 import androidx.core.app.NotificationCompat;
-import androidx.lifecycle.ViewModelProviders;
 
 import com.google.android.gms.location.FusedLocationProviderClient;
 import com.google.android.gms.location.LocationCallback;
 import com.google.android.gms.location.LocationRequest;
 import com.google.android.gms.location.LocationResult;
 import com.google.android.gms.location.LocationServices;
-import com.google.android.gms.maps.CameraUpdateFactory;
-import com.google.android.gms.maps.model.LatLng;
-import com.google.android.gms.maps.model.MarkerOptions;
 
 import java.text.DateFormat;
 import java.util.Date;
 
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.LocationTracking;
-import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
-
+/**
+ * This is a foreground service that keeps track of the
+ * current active path and updates it with gps data every
+ * few seconds. It works in background, meaning that the app does
+ * not need to be open once path tracking has started. A notification
+ * is displayed to the user while the service is active.
+ */
 @RequiresApi(api = Build.VERSION_CODES.O)
 public class LocationService extends IntentService {
 

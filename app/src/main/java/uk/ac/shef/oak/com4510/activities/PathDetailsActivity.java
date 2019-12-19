@@ -1,11 +1,7 @@
 package uk.ac.shef.oak.com4510.activities;
 
 import android.content.DialogInterface;
-import android.content.Intent;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.Looper;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -18,17 +14,22 @@ import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 
+import com.google.android.material.tabs.TabLayout;
+
+import java.util.List;
+import java.util.concurrent.Executors;
+
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
-import com.google.android.material.tabs.TabLayout;
-
-import java.util.List;
-import java.util.concurrent.Executors;
-
+/**
+ * This activity handles the two details modes of the path
+ * i.e. gallery view and map view. It also handles deletion of
+ * path if requested by user.
+ */
 public class PathDetailsActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;

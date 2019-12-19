@@ -6,28 +6,29 @@ import android.app.SearchManager;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
-import android.view.SearchEvent;
 import android.view.View;
 import android.widget.Button;
-import android.widget.ImageView;
 
 import androidx.annotation.NonNull;
-import androidx.annotation.Nullable;
 import androidx.appcompat.widget.SearchView;
 import androidx.fragment.app.Fragment;
 import androidx.recyclerview.widget.RecyclerView;
 import androidx.room.Room;
 
-import uk.ac.shef.oak.com4510.R;
-import uk.ac.shef.oak.com4510.database.AppDatabase;
-
 import com.google.android.material.bottomnavigation.BottomNavigationView;
 import com.google.android.material.floatingactionbutton.FloatingActionButton;
 
+import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.database.AppDatabase;
+
+/**
+ * This activity class is the main activity. It is used to
+ * handle the transitions between gallery view modes (i.e.
+ * grid or path list).
+ */
 public class HomeActivity extends BaseActivity {
 
     private PhotosFragment photosFragment;

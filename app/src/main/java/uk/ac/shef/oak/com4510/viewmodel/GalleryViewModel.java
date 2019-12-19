@@ -4,14 +4,17 @@ import android.app.Application;
 
 import androidx.lifecycle.AndroidViewModel;
 import androidx.lifecycle.LiveData;
-import androidx.lifecycle.Observer;
+
+import java.util.List;
 
 import uk.ac.shef.oak.com4510.model.LocationTracking;
 import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 
-import java.util.List;
-
+/**
+ * This is a view model responsible for storing and modifying
+ * entries in the database using MVVM architecture.
+ */
 public class GalleryViewModel extends AndroidViewModel {
 
     private GalleryRepository repository;

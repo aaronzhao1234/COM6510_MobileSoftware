@@ -10,6 +10,10 @@ import java.util.List;
 
 import uk.ac.shef.oak.com4510.model.LocationTracking;
 
+
+/**
+ * This is the database DAO for the {@link LocationTracking} entry.
+ */
 @Dao
 public interface LocationTrackingDao {
     @Insert

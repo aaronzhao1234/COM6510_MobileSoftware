@@ -10,13 +10,16 @@ import android.widget.TextView;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 
+/**
+ * This fragment initializes the details view with information
+ * from the photo and displays the photo location on the map.
+ */
 public class PhotoDetailsFragment extends Fragment {
 
     private PathPhoto pathPhoto;

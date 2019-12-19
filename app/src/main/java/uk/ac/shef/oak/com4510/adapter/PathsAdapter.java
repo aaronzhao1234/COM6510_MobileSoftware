@@ -15,6 +15,9 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.activities.PathDetailsActivity;
 import uk.ac.shef.oak.com4510.model.Path;
@@ -22,9 +25,11 @@ import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.Utilities;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * This adapter handles the recycler view of the path list fragment.
+ * It is responsible for properly displaying the paths along with
+ * their details
+ */
 public class PathsAdapter extends RecyclerView.Adapter<PathsAdapter.PathViewHolder> {
 
     private Context context;

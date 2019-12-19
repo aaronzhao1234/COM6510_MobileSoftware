@@ -10,9 +10,22 @@ import androidx.appcompat.widget.Toolbar;
 
 import uk.ac.shef.oak.com4510.R;
 
+/**
+ * This is a base activity used to build the toolbar and
+ * enable activities which inherit it to place content
+ * without adding new toolbar every time
+ */
 public class BaseActivity extends AppCompatActivity {
 
+    /**
+     * Container layout to place content
+     */
     protected FrameLayout baseLayout;
+
+
+    /**
+     * The main toolbar of the app visible on all activities
+     */
     protected Toolbar toolbar;
 
     @Override
@@ -35,7 +48,6 @@ public class BaseActivity extends AppCompatActivity {
         getMenuInflater().inflate(R.menu.menu_main, menu);
         return true;
     }
-
 
     @Override
     public void setContentView(int id) {

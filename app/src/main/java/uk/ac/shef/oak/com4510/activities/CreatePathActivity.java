@@ -3,7 +3,6 @@ package uk.ac.shef.oak.com4510.activities;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.Bundle;
-import android.os.SharedMemory;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.view.Menu;
@@ -21,11 +20,14 @@ import uk.ac.shef.oak.com4510.model.Path;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryRepository;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
+/**
+ * This activity handles the creation of paths with
+ * associated fields and initializes the process of
+ * tracking
+ */
 public class CreatePathActivity extends BaseActivity {
 
-    private EditText titleInput;
     private GalleryViewModel galleryViewModel;
-    private Button button;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -34,7 +36,9 @@ public class CreatePathActivity extends BaseActivity {
 
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
-        titleInput = findViewById(R.id.titleInput);
+        final EditText titleInput = findViewById(R.id.titleInput);
+        final Button button = findViewById(R.id.button);
+
         titleInput.addTextChangedListener(new TextWatcher() {
             @Override
             public void beforeTextChanged(CharSequence s, int start, int count, int after) {
@@ -53,7 +57,6 @@ public class CreatePathActivity extends BaseActivity {
             }
         });
 
-        button=(Button) findViewById(R.id.button);
         button.setEnabled(false);
         button.setOnClickListener(new View.OnClickListener() {
 

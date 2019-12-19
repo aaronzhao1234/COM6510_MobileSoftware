@@ -17,15 +17,19 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import java.util.ArrayList;
+import java.util.List;
+
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.adapter.PhotosAdapter;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.GalleryLayoutManager;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
-import java.util.ArrayList;
-import java.util.List;
-
+/**
+ * This is a fragment responsible with displaying the photos in either
+ * grid or scrollable horizontal list.
+ */
 public class PhotosFragment extends Fragment {
 
     private GalleryViewModel galleryViewModel;

@@ -4,10 +4,13 @@ import androidx.room.ColumnInfo;
 import androidx.room.Entity;
 import androidx.room.PrimaryKey;
 
-import uk.ac.shef.oak.com4510.utils.EntityInterface;
-
 import java.util.Date;
 
+import uk.ac.shef.oak.com4510.utils.EntityInterface;
+
+/**
+ * This is a model responsible for storing the path details
+ */
 @Entity
 public class Path implements EntityInterface {
 

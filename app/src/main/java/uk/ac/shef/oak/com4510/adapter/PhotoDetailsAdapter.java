@@ -10,6 +10,11 @@ import java.util.List;
 import uk.ac.shef.oak.com4510.activities.PhotoDetailsFragment;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 
+/**
+ * This adapter handles the recycler view of the photo details activity.
+ * It is responsible for properly displaying the photo details views
+ * in scrollable pages.
+ */
 public class PhotoDetailsAdapter extends FragmentPagerAdapter {
 
     private List<PathPhoto> photoList;

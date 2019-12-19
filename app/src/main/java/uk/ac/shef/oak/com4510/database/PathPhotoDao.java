@@ -7,11 +7,14 @@ import androidx.room.Insert;
 import androidx.room.OnConflictStrategy;
 import androidx.room.Query;
 
+import java.util.List;
+
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.DaoInterface;
 
-import java.util.List;
-
+/**
+ * This is the database DAO for the {@link PathPhoto} entry.
+ */
 @Dao
 public interface PathPhotoDao extends DaoInterface {
 

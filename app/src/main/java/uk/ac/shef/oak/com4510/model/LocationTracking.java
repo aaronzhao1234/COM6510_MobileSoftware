@@ -7,7 +7,10 @@ import androidx.room.ForeignKey;
 import androidx.room.Index;
 import androidx.room.PrimaryKey;
 
-
+/**
+ * This is a model responsible for storing information relating
+ * to location tracking (GPS data).
+ */
 @Entity(tableName = "locations",
         indices = {@Index("path_id")},
         foreignKeys = @ForeignKey(entity = Path.class,

@@ -5,6 +5,9 @@ import android.os.AsyncTask;
 
 import androidx.lifecycle.LiveData;
 
+import java.util.List;
+import java.util.concurrent.Executors;
+
 import uk.ac.shef.oak.com4510.database.AppDatabase;
 import uk.ac.shef.oak.com4510.database.LocationTrackingDao;
 import uk.ac.shef.oak.com4510.database.PathDao;
@@ -15,9 +18,10 @@ import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.utils.DaoInterface;
 import uk.ac.shef.oak.com4510.utils.EntityInterface;
 
-import java.util.List;
-import java.util.concurrent.Executors;
-
+/**
+ * This is the repository that links the the View model
+ * {@link GalleryViewModel} to the database
+ */
 public class GalleryRepository {
 
     private PathDao pathDao;

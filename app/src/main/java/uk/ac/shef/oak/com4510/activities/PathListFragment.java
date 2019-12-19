@@ -1,9 +1,6 @@
 package uk.ac.shef.oak.com4510.activities;
 
-import android.app.SearchManager;
-import android.content.Intent;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -18,15 +15,18 @@ import androidx.recyclerview.widget.DefaultItemAnimator;
 import androidx.recyclerview.widget.LinearLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
-import uk.ac.shef.oak.com4510.R;
-import uk.ac.shef.oak.com4510.adapter.PathsAdapter;
-import uk.ac.shef.oak.com4510.model.Path;
-import uk.ac.shef.oak.com4510.model.PathPhoto;
-import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
-
 import java.util.ArrayList;
 import java.util.List;
 
+import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.adapter.PathsAdapter;
+import uk.ac.shef.oak.com4510.model.Path;
+import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
+
+/**
+ * This fragment handles the path list. It also handles search
+ * queries to show more relevant paths.
+ */
 public class PathListFragment extends Fragment {
 
     private GalleryViewModel galleryViewModel;

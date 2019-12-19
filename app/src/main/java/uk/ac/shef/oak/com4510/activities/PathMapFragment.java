@@ -2,9 +2,7 @@ package uk.ac.shef.oak.com4510.activities;
 
 import android.Manifest;
 import android.content.pm.PackageManager;
-import android.os.AsyncTask;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,11 +13,6 @@ import androidx.core.app.ActivityCompat;
 import androidx.fragment.app.Fragment;
 import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
-
-import uk.ac.shef.oak.com4510.R;
-import uk.ac.shef.oak.com4510.model.LocationTracking;
-import uk.ac.shef.oak.com4510.model.PathPhoto;
-import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -32,10 +25,20 @@ import com.google.android.gms.maps.model.Polyline;
 import com.google.android.gms.maps.model.PolylineOptions;
 import com.google.android.gms.maps.model.RoundCap;
 
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 
+import uk.ac.shef.oak.com4510.R;
+import uk.ac.shef.oak.com4510.model.LocationTracking;
+import uk.ac.shef.oak.com4510.model.PathPhoto;
+import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
+
+/**
+ * This fragment is able to show a map with tracking information
+ * including journey and photos. It is used in both to show the
+ * map of finished path and the active one. The map is updated
+ * every time a new relevant entry on the database is inserted.
+ */
 public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
     private GoogleMap mMap;

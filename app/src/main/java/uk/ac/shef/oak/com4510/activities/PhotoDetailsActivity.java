@@ -7,13 +7,19 @@ import androidx.lifecycle.Observer;
 import androidx.lifecycle.ViewModelProviders;
 import androidx.viewpager.widget.ViewPager;
 
+import java.util.List;
+
 import uk.ac.shef.oak.com4510.R;
 import uk.ac.shef.oak.com4510.adapter.PhotoDetailsAdapter;
 import uk.ac.shef.oak.com4510.model.PathPhoto;
 import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
 
-import java.util.List;
-
+/**
+ * This activity handles the display of photo details including
+ * fields and position on the map. It uses an viewpager adapter
+ * which let the user browse by swiping left and rignht through
+ * the photos.
+ */
 public class PhotoDetailsActivity extends BaseActivity {
 
     //---------------viewPager_declaration---------------------------------------------
