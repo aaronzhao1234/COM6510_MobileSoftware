@@ -41,14 +41,26 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
  */
 public class PathMapFragment extends Fragment implements OnMapReadyCallback {
 
+    // Google map handler
     private GoogleMap mMap;
+
+    // view model variables
     private GalleryViewModel galleryViewModel;
 
+    /**
+     * Create a new instance of the class
+     * @return new instance of the class
+     */
     public static PathMapFragment newInstance() {
         return new PathMapFragment();
     }
 
-    public GoogleMap getmMap() {
+
+    /**
+     * Get the google map associated with this instance
+     * @return the google path
+     */
+    public GoogleMap getMap() {
         return mMap;
     }
 
@@ -81,13 +93,17 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
      */
     @Override
     public void onMapReady(GoogleMap googleMap) {
+        // set map options
         mMap = googleMap;
         mMap.getUiSettings().setZoomControlsEnabled(true);
 
+        // get photo and path id from the shared preferences
         final int pathId = getArguments().getInt("pathId", -1);
         final int photoId = getArguments().getInt("photoId", -1);
 
         if (photoId != -1) {
+            // populate map based on the path id associated
+            // with this fragment
             galleryViewModel.getLocationsByPath(pathId).observe(this, new Observer<List<LocationTracking>>() {
                 @Override
                 public void onChanged(final List<LocationTracking> locationTrackings) {
@@ -102,11 +118,14 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
                     });
                 }
             });
-        } else {
+        } else { // in the photo details view only
+            // check if location permission is granted
             if (ActivityCompat.checkSelfPermission(getContext(), Manifest.permission.ACCESS_FINE_LOCATION) == PackageManager.PERMISSION_GRANTED) {
                 mMap.setMyLocationEnabled(true);
             }
 
+            // update map with tracking locations and
+            // show the desired photo with a pin on the map
             galleryViewModel.getLocationsByPath(pathId).observe(this, new Observer<List<LocationTracking>>() {
                 @Override
                 public void onChanged(final List<LocationTracking> locationTrackings) {
@@ -124,18 +143,30 @@ public class PathMapFragment extends Fragment implements OnMapReadyCallback {
         }
     }
 
+    /**
+     * Populate the map with pins on the place where the
+     * photo was taken.
+     * @param photos list of photos
+     */
     private void populateMap(List<PathPhoto> photos) {
         for (PathPhoto photo: photos) {
+            // get coordinates from photo
             String[] coordsString = photo.getCoordinates().split(",");
             double lat = Double.parseDouble(coordsString[0]);
             double lng = Double.parseDouble(coordsString[1]);
 
+            // set pin on the map
             LatLng position = new LatLng(lat, lng);
             mMap.addMarker(new MarkerOptions().position(position));
             mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(position,14.0f));
         }
     }
 
+    /**
+     * Populate the map with polyline showing the journey
+     * during path tracking.
+     * @param locations list of tracking locations
+     */
     private void populateWithLocation(List<LocationTracking> locations) {
         for (LocationTracking location: locations) {
             LatLng position = new LatLng(location.getLatitude(), location.getLongitude());

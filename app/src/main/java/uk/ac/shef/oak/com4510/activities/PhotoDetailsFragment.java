@@ -37,14 +37,17 @@ public class PhotoDetailsFragment extends Fragment {
     public void onActivityCreated(@Nullable Bundle savedInstanceState) {
         super.onActivityCreated(savedInstanceState);
 
+        // initialize path map fragment
         FragmentManager fragmentManager = getChildFragmentManager();
         PathMapFragment fragment = new PathMapFragment();
 
+        // set fragment arguments
         Bundle args = new Bundle();
         args.putInt("pathId", pathPhoto.getPathId());
         args.putInt("photoId", pathPhoto.getId());
         fragment.setArguments(args);
 
+        // display path map fragment
         fragmentManager.beginTransaction()
                 .setCustomAnimations(R.anim.fade_in_short, R.anim.fade_out_short)
                 .replace(R.id.fragment_container, fragment)

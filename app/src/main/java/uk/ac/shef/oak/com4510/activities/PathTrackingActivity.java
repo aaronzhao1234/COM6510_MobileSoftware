@@ -50,15 +50,21 @@ import uk.ac.shef.oak.com4510.viewmodel.GalleryViewModel;
  */
 public class PathTrackingActivity extends BaseActivity {
 
+
+    /**
+     * Permission status identifier
+     */
     public static final int PERMISSION_STATUS = 1234;
 
+    // sensor tracking helpers
     private Barometer barometer;
     private Thermometer thermometer;
 
+    // view model variables
     private GalleryViewModel galleryViewModel;
     private Path trackingPath;
 
-    private Intent intent;
+    private Intent serviceIntent;
     private PathMapFragment pathMapFragment;
 
     @RequiresApi(api = Build.VERSION_CODES.P)
@@ -69,12 +75,14 @@ public class PathTrackingActivity extends BaseActivity {
 
         checkPermission();
 
+        // return if path id is not defined in shared preferences
         final int id = (int) getSharedPreferences("PathTracking", MODE_PRIVATE).getLong("pathId", -1);
         if (id == -1) {
             finish();
             return;
         }
 
+        // initialize view model and retrieve path tracking
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
         galleryViewModel.getPathById(id).observe(this, new Observer<List<Path>>() {
             @Override
@@ -85,9 +93,11 @@ public class PathTrackingActivity extends BaseActivity {
             }
         });
 
+        // initialize and start barometer recordings
         barometer = new Barometer(this);
         barometer.startSensingPressure();
 
+        // initialize and start thermometer recordings
         thermometer = new Thermometer(this);
         thermometer.startSensingTempertaure();
 
@@ -103,6 +113,7 @@ public class PathTrackingActivity extends BaseActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
 
+        // initialize path map fragment
         pathMapFragment = PathMapFragment.newInstance();
         Bundle args = new Bundle();
         args.putInt("pathId", id);
@@ -116,6 +127,7 @@ public class PathTrackingActivity extends BaseActivity {
 
     @Override
     public boolean onSupportNavigateUp() {
+        // return to home activity when back button pressed
         Intent intent = new Intent(this, HomeActivity.class);
         intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         startActivity(intent);
@@ -127,6 +139,7 @@ public class PathTrackingActivity extends BaseActivity {
     protected void onResume() {
         super.onResume();
 
+        // restart sensors
         barometer.startSensingPressure();
         thermometer.startSensingTempertaure();
     }
@@ -135,6 +148,7 @@ public class PathTrackingActivity extends BaseActivity {
     protected void onPause() {
         super.onPause();
 
+        // pause sensors
         barometer.stopBarometer();
         thermometer.stopThermometer();
     }
@@ -142,18 +156,20 @@ public class PathTrackingActivity extends BaseActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
+
+        // stop sensors
         barometer.stopBarometer();
         thermometer.stopThermometer();
     }
 
     @RequiresApi(api = Build.VERSION_CODES.P)
-    private void checkPermission(){
+    private void checkPermission() {
+        // check and request essential permissions
         if (ActivityCompat.checkSelfPermission(this, Manifest.permission.CAMERA) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.ACCESS_FINE_LOCATION) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.READ_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.WRITE_EXTERNAL_STORAGE) != PackageManager.PERMISSION_GRANTED
                 || ActivityCompat.checkSelfPermission(this, Manifest.permission.FOREGROUND_SERVICE) != PackageManager.PERMISSION_GRANTED) {
-            // Should we show an explanation?
 
             // No explanation needed, we can request the permission.
             ActivityCompat.requestPermissions(this, new String[]{
@@ -162,14 +178,19 @@ public class PathTrackingActivity extends BaseActivity {
                     Manifest.permission.READ_EXTERNAL_STORAGE,
                     Manifest.permission.WRITE_EXTERNAL_STORAGE,
                     Manifest.permission.FOREGROUND_SERVICE}, PERMISSION_STATUS);
+
             return;
         }
     }
 
     @RequiresApi(api = Build.VERSION_CODES.O)
     private void startLocationUpdates(Context context) {
-        intent = new Intent(context, LocationService.class);
-        context.startForegroundService(intent);
+        // initialize ans start foreground service for
+        // location tracking
+        serviceIntent = new Intent(context, LocationService.class);
+        context.startForegroundService(serviceIntent);
+
+        // start timer
         startTimer();
     }
 
@@ -177,6 +198,7 @@ public class PathTrackingActivity extends BaseActivity {
     protected void onActivityResult(int requestCode, int resultCode, Intent data) {
         super.onActivityResult(requestCode, resultCode, data);
 
+        // handle photo capturing and retrieval from gallery
         EasyImage.handleActivityResult(requestCode, resultCode, data, this, new DefaultCallback() {
             @Override
             public void onImagePickerError(Exception e, EasyImage.ImageSource source, int type) {
@@ -195,7 +217,7 @@ public class PathTrackingActivity extends BaseActivity {
 
             @Override
             public void onCanceled(EasyImage.ImageSource source, int type) {
-                //Cancel handling, you might wanna remove taken photo if it was canceled
+                // Cancel handling
                 if (source == EasyImage.ImageSource.CAMERA) {
                     File photoFile = EasyImage.lastlyTakenButCanceledPhoto(PathTrackingActivity.this);
                     if (photoFile != null) photoFile.delete();
@@ -214,15 +236,16 @@ public class PathTrackingActivity extends BaseActivity {
                 // If request is cancelled, the result arrays are empty.
                 if (grantResults.length > 0
                         && grantResults[0] == PackageManager.PERMISSION_GRANTED) {
-                    // permission was granted, yay! Do the
-                    // contacts-related task you need to do.
+                    // permission was granted
                     startLocationUpdates(getApplicationContext());
-                    if (pathMapFragment.getmMap() != null) {
-                        pathMapFragment.getmMap().setMyLocationEnabled(true);
+                    if (pathMapFragment.getMap() != null) {
+                        pathMapFragment.getMap().setMyLocationEnabled(true);
                     }
                 } else {
+                    // permission denied, stop path tracking
                     finishTrackingPath();
 
+                    // delete tracked path
                     Executors.newSingleThreadExecutor().execute(new Runnable() {
                         @Override
                         public void run() {
@@ -230,17 +253,19 @@ public class PathTrackingActivity extends BaseActivity {
                         }
                     });
 
+                    // show reason for stopping
                     Toast.makeText(this, "Unable to create path without permissions.", Toast.LENGTH_SHORT).show();
 
+                    // return to previous activity
                     finish();
-                    // permission denied, boo! Disable the
-                    // functionality that depends on this permission.
                 }
-                return;
             }
         }
     }
 
+    /**
+     * Set listeners for user buttons
+     */
     private void setButtonListeners() {
         FloatingActionButton fabCamera = findViewById(R.id.fab_camera);
         fabCamera.setOnClickListener(new View.OnClickListener() {
@@ -272,15 +297,17 @@ public class PathTrackingActivity extends BaseActivity {
     }
 
     /**
-     * add to the grid
+     * Handle photo captured or received from the gallery
      * @param returnedPhotos
      */
     private void onPhotosReturned(List<File> returnedPhotos) throws IOException {
+        // create image file
         String timeStamp = new SimpleDateFormat("yyyyMMdd_HHmmss").format(new Date());
         String imageFileName = "JPEG_" + timeStamp + "_";
         File storageDir = getExternalFilesDir(Environment.DIRECTORY_PICTURES);
         File image = new File(storageDir, imageFileName + ".jpg");
 
+        // copy content of selected image to the final image destination
         FileInputStream is = new FileInputStream(returnedPhotos.get(0));
         FileOutputStream  os = new FileOutputStream(image);
         FileChannel inChannel = is.getChannel();
@@ -289,14 +316,13 @@ public class PathTrackingActivity extends BaseActivity {
         is.close();
         os.close();
 
+        // store the image to the database
         storeImage(image);
-
-        Intent intent = new Intent(Intent.ACTION_MEDIA_SCANNER_SCAN_FILE);
-        Uri contentUri = Uri.fromFile(image);
-        intent.setData(contentUri);
-        this.sendBroadcast(intent);
     }
 
+    /**
+     * Initialize {@link EasyImage}
+     */
     private void initEasyImage() {
         EasyImage.configuration(this)
                 .setImagesFolderName("EasyImage sample")
@@ -305,15 +331,24 @@ public class PathTrackingActivity extends BaseActivity {
                 .setAllowMultiplePickInGallery(true);
     }
 
+    /**
+     * Finish tracking and update path with end tine.
+     * Stop the tracking service.
+     */
     private void finishTrackingPath() {
         trackingPath.setEndTime(new Date());
         galleryViewModel.insertPath(trackingPath, null);
-        stopService(PathTrackingActivity.this.intent);
+        stopService(PathTrackingActivity.this.serviceIntent);
     }
 
+    /**
+     * Store the image to the database using view model
+     * @param image image to be stored
+     */
     private void storeImage(File image) {
         SharedPreferences prefs = getSharedPreferences("PathTracking", MODE_PRIVATE);
 
+        // initialize photo model with data
         PathPhoto photo = new PathPhoto(
                 prefs.getString("currentLocation", ""),
                 thermometer.getmTemperatureValue(),
@@ -322,10 +357,14 @@ public class PathTrackingActivity extends BaseActivity {
                 trackingPath.getId()
         );
 
+        // insert into database and show prompt of finish
         galleryViewModel.insertPhoto(photo, null);
         Toast.makeText(this, "Photo added to path.", Toast.LENGTH_SHORT).show();
     }
 
+    /**
+     * Show timer for the tracking updating every second.
+     */
     private void startTimer() {
         final Handler h = new Handler();
         final TextView timerText = findViewById(R.id.timer);

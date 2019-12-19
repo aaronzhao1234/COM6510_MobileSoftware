@@ -34,7 +34,7 @@ public class PhotoDetailsActivity extends BaseActivity {
         setContentView(R.layout.photo_details_activity);
 
         //---------------------ViewPager------------------------------------------
-        viewPager = (ViewPager) findViewById(R.id.viewPager_id);
+        viewPager = findViewById(R.id.viewPager_id);
 
         galleryViewModel = ViewModelProviders.of(this).get(GalleryViewModel.class);
 
@@ -65,7 +65,6 @@ public class PhotoDetailsActivity extends BaseActivity {
         assert getSupportActionBar() != null;
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
-
     }
 
     @Override
